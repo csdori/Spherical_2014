@@ -1,6 +1,18 @@
 Programok:
 -úgy kéne, hogy már a progi konkrétan a klaszterátlagot várja bemenetként és a kimenet a spherical sCSD legyen. Ez magában foglalja, hogy a távolságbecslés is benne legyen a megfelelő módszer alapján. 
--a börsztölős sejtek esetén ki kéne szedni a first spikeokat....
-- a színes képen a szignifikáns képeket kiemelni...
+
+
+- a színes képen a szignifikáns képeket kiemelni... inkább az adott szórásértéken felülieket meghagyni színesnek...
+
 -azért érdemes lenne kicsit elkülöníteni az up-down-states dolgokat, nézni a különböző protokollok közti eltérést
 -lefuttatni a kérgi sejtekre is...
+
+
+
+-a börsztölős sejtek esetén ki kéne szedni a first spikeokat.... már majdnem megvan
+Hogy lehet detektálni a burst első spikejait? 5 ms csak, hogy tutira menjünk
+if spiketime(k)- spiketime(k-1) < 5 ms spiketime(k-1) legyen detektálva
+- csak az adott klasztereken belüli burstölést zárjuk ki, vagy a többi kaszter eseményeihez képest is ki kéne válogatni...
+
+#klaszterezés minőségének ellenőrzése
+

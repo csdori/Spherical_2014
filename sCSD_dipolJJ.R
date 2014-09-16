@@ -64,7 +64,7 @@ mappa<-paste(mentes,'/',dirname,sep='')  ## Folder name used in tuskerajz.R
 
 source("findpeaks.R")
 source("imaging.R")
-
+#source("LFPmean.R")
 #nem lineárás színskálás ábrák
 ##source("nemlinplot.R")
 source("nemlinplot2.R")       ### USING NEW FILE FOR PLOTTING WITH NONLINEAR COLOR SCALING
@@ -206,7 +206,7 @@ db<-0   #tüskék száma az adott klaszterben
 atlag<-matrix(c(rep(0,2*felablak*cs)),nrow=cs) #csak 16 csatorna esetén adja ki az összeset!!! 
 isi<-numeric()
 idopontok<-numeric()
-elozo<-numeric()
+elozo<-0
 
 
 
