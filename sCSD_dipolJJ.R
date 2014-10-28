@@ -5,8 +5,8 @@
 ##source('/home/jalics/sCSD_git/sCSD_dipolJJ.R')  ## copy at R prompt to run on tauri or uranus
 
 #Hol van az adat?
-##fajlnev<-'p3d6.6whisker.dat'
-fajlnev<-'p3d6.6.dat'
+fajlnev<-'p3d6.6whisker.dat'
+#fajlnev<-'p3d6.6.dat'
 ##fajlnev2<-'p3d6.6whisker'  ##used when using Acsadi's own .clu and .res files
 
 
@@ -18,7 +18,7 @@ WhereamI<-'otthon' #kfki
 if (WhereamI=='otthon'){
   parent<-'/media/BA0ED4600ED416EB/agy/adat_acsadi/sil20_erdekes'
   forras1<-'/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/'
-  mentes<-"/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/"
+  mentes<-"/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/elem_2"
   setwd('/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/')
 } 
 #if (WhereamI=='kfki'){
@@ -32,19 +32,25 @@ if (WhereamI=='Jozsikfki'){
   setwd("/home/jalics/sCSD_git")  ## on tauri: Working directory for loading R files
 } 
 
+#adatbeolvasás, paraméterek
+source("beolvasas_para.R")
+
 #Do you want to run the clustering on a specific data?
-DoClustering<-'Yes' #No
+DoClustering<-"No"#'Yes' #No
 if (DoClustering=='Yes'){
   cat("Clustering \n")
   Currentfolder<-getwd()
   setwd(parent)
-  source(paste(forras1, 'DESO_ujJJ.R',sep=''))
+  source(paste(forras1, 'filtering.R',sep=''))
+  SpikeSorting(fajlnev)
+  #source(paste(forras1, 'DESO_ujJJ.R',sep=''))
   setwd(Currentfolder)
   rm(Currentfolder)
 }
 
-
-
+#### break here
+#break 
+setwd(forras1)
 
 #library('clv')
 library(class)
@@ -75,8 +81,7 @@ source("dipolgombJJ.R")   ## Using my revised code
 #hova mentsük a dolgokat?
 
 
-#adatbeolvasás, paraméterek
-source("beolvasas_para.R")
+
 
 
 
@@ -86,18 +91,6 @@ fid<-file(fajlnev,'rb')
 #dirname1<-paste('dipol1_',fajlnev,'_',start,'_','sec_est',sep='')
 #dir.create(dirname1) #csinálunk egy mappát!!! 
 #setwd(dirname1) 
-
-
-
-#agyi rétegek (sCSD rétegenként(mármint adottba tartozó sejtenként))  
-#s1
-s1<-c(1:16)
-#v1 sejtek
-v1<-c(17:32)
-
-s2<-33 #üres
-#thalamus sejtek
-thal<-c(34:65)
 
 cat("Parameterek beolvasva \n")
 
@@ -119,8 +112,6 @@ ablak<-ABLAK[idoskal]   #az ábrák, számolások időablakának hossza
 felablak<-ablak/2*mintf #adatpontokban az időablak hosszának fele
 
 setwd(parent)
-#csatornasorrend
-csat.rend<-scan("chOrder32lin16lin16lin.txt")
 
 #setwd(dirname)
 
@@ -158,6 +149,10 @@ ch<-csatorna[sz]
 cluname<-paste(mappa,"/",fajlnev,".clu.",ch,sep='')  ## using data from DESO_uj.R 
 ##resname<-paste(parent,"/",fajlnev2,".res.",ch,sep='')  ## using Acsadi's clustering data
 resname<-paste(mappa,"/",fajlnev,".res.",ch,sep='')  ## using data from DESO_uj.R
+#Cheking whether files exist
+if(file.exists(cluname)==FALSE) next
+
+
 klasz<-read.table(cluname) #a tüskék klaszterszámai
 klaszter<-klasz[,1]
 wo<-read.table(resname)
@@ -185,7 +180,7 @@ if(ch>=min(thal) && ch<=max(thal)) {jel<-length(thal)
 
 if(ch!=33){
 
-if(klaszter!=0){
+if(length(klaszter)>0){
   
 SNR<-vector(mode='numeric', length=max(klaszter))
 for(k in 1:max(klaszter)){  #megyünk az adott csatornén lévő klasztereken végig
@@ -227,8 +222,10 @@ write.table(idopontok,idopon.nev)
 #ide kéne valami acf
 #acf(idopontok, type="correlation") ####
 #legyen a fel ms-os binelésű
+
 ido<-numeric()
 ido<-idopontok
+if(length(ido)==0) break
 rm(idopontok)
 
 bhossz<-0.5 #ms
@@ -267,10 +264,6 @@ DATLAG<-DATLAG-rowMeans(DATLAG[,-((ablak/4*mintf):(ablak*3/4*mintf))])
 
 #interpolálás az r.all esetre
 
-
-
-
-
 #t-test
 
 #amplitudo
@@ -290,7 +283,7 @@ DATLAG<-DATLAG-rowMeans(DATLAG[,-((ablak/4*mintf):(ablak*3/4*mintf))])
 #source("potrajzcsat.R")
 
 #isi
-#source("isi.R")
+try(source(paste(forras1,"isi.R",sep="")))
 #}
 
 #sCSD
@@ -317,6 +310,8 @@ ITRAD[thal[1],j]<- (DATLAG[thal[1],j] - 2*DATLAG[thal[2],j] + DATLAG[thal[3],j])
   ITRAD[thal[2]:(thal[31]),j]<- (DATLAG[thal[1]:(thal[30]),j] - 2*DATLAG[thal[2]:(thal[31]),j] + DATLAG[thal[3]:(thal[32]),j])/50^2
 ITRAD[thal[32],j]<- (DATLAG[thal[32],j] - 2*DATLAG[thal[31],j] + DATLAG[thal[30],j])/50^2
       }
+
+
 later<-0
 if(later==0){
 Distances<-numeric()  
@@ -475,10 +470,10 @@ MaxPots<- c(MaxPots,abs(minPot))
 
 
 ##legen<-legendre(tav,DATLAG)
-legen<-legendre(Distances[tav],DATLAG)
-legenhej<-legendre(Distances[tavhej],DATLAG)
-legen3<-legendre(Distances[tav3],DATLAG)
-legen4<-legendre(Distances[tav4],DATLAG)
+if(is.na(tav)==FALSE)legen<-legendre(Distances[tav],DATLAG)
+if(is.na(tavhej)==FALSE) legenhej<-legendre(Distances[tavhej],DATLAG)
+if(is.na(tav3)==FALSE) legen3<-legendre(Distances[tav3],DATLAG)
+if(is.na(tav4)==FALSE) legen4<-legendre(Distances[tav4],DATLAG)
 
 dipolcsat<-legen$dipolcsat
 dipolcsathej<-legenhej$dipolcsat

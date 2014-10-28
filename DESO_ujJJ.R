@@ -345,6 +345,8 @@ af<-numeric()
 valami<-numeric()
 klaszter<-numeric()
 klaszt.jell<-numeric()
+klaszt.uncertainty<-numeric()
+klaszt.bic<-numeric()
 mimi<-numeric()
 MIMI<-list(ch=numeric())
 if((hossz*3)<length(wowtime[[ch]])){        #van-e elég adat a pca-hoz hány csatornára klaszterezünk*adatpont  
@@ -365,6 +367,8 @@ valami<-tuskek%*%tuskek.pca$loadings[,1:newDim] #spm alapján
 #pairs(valami)
 
 klaszter<-Mclust(valami, minG=2,maxG=15)
+klaszt.uncertainty<-klaszter$uncertainty
+klaszt.bic<-klaszter$BIC
 #klaszter
 #a valami hordozza a klaszterezendő adatpontokat, a
 #klaszter$classification pedig hogy melyik klaszterbe tartoznak
@@ -421,6 +425,15 @@ file=cluname,row.names=FALSE,col.names=FALSE)
 
 write.table(MIMI[[ch]][,2]*mintf,
 file=resname,row.names=FALSE,col.names=FALSE)
+
+uncer.name<-paste(fajlnev,"_uncertaunty_",ch,sep='')
+write.table(klaszt.uncertainty,
+            file=uncer.name,row.names=FALSE,col.names=FALSE)
+bic.name<-paste(fajlnev,"_bic_",ch,sep='')
+write.table(klaszt.bic,
+            file=bic.name,row.names=FALSE,col.names=FALSE)
+
+
 } # elég spike
 if(MIMI[[ch]]=="nincs eleg spike a PCA-hoz"){
 

@@ -43,7 +43,7 @@ if(max(adat[ch,])-min(adat[ch,])< 2000) {  #ne legyen ennél nagyobb jel rajta
 if (FirstSpikeOnly=="yes"  & l>1 ){
   
  if (((wow[l]-elozo)/adatsec) > 5 ) { #csak a klaszteren belül nézi
-#if (((wow[l]-wow[l-1])/adatsec) > 2 ) { #az egész csatornán nézi
+#if (((wow[l]-wow[l-1])/adatsec) > 5 ) { #az egész csatornán nézi
 
 idopontok<-c(idopontok,wow[l]/mintf)
 db<-db+1
