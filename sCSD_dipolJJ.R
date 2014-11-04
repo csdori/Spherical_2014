@@ -18,7 +18,7 @@ WhereamI<-'otthon' #kfki
 if (WhereamI=='otthon'){
   parent<-'/media/BA0ED4600ED416EB/agy/adat_acsadi/sil20_erdekes'
   forras1<-'/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/'
-  mentes<-"/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/elem_2"
+  mentes<-"/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/elem_4"
   setwd('/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/')
 } 
 #if (WhereamI=='kfki'){
@@ -32,11 +32,14 @@ if (WhereamI=='Jozsikfki'){
   setwd("/home/jalics/sCSD_git")  ## on tauri: Working directory for loading R files
 } 
 
+if(file.exists(mentes)==FALSE) dir.create(mentes)
+
+
 #adatbeolvasás, paraméterek
 source("beolvasas_para.R")
 
 #Do you want to run the clustering on a specific data?
-DoClustering<-"No"#'Yes' #No
+DoClustering<-"Yes"#'Yes' #No
 if (DoClustering=='Yes'){
   cat("Clustering \n")
   Currentfolder<-getwd()
@@ -146,9 +149,9 @@ ch<-csatorna[sz]
 #kikörések: 33-ason nincs semmi, a 34-esre meg meg kell csinálni, hogy az
 #alattalevőket nézi, mert most minden a felettelevőből számol
 ##cluname<-paste(parent,"/",fajlnev2,".clu.",ch,sep='')  ## using Acsadi's clustering data
-cluname<-paste(mappa,"/",fajlnev,".clu.",ch,sep='')  ## using data from DESO_uj.R 
+cluname<-paste(mentes,"/",fajlnev,".clu.",ch,sep='')  ## using data from DESO_uj.R 
 ##resname<-paste(parent,"/",fajlnev2,".res.",ch,sep='')  ## using Acsadi's clustering data
-resname<-paste(mappa,"/",fajlnev,".res.",ch,sep='')  ## using data from DESO_uj.R
+resname<-paste(mentes,"/",fajlnev,".res.",ch,sep='')  ## using data from DESO_uj.R
 #Cheking whether files exist
 if(file.exists(cluname)==FALSE) next
 
@@ -303,13 +306,23 @@ konst<-1  #valójában 1/(4*pi*epsilon*sigma)
 
 #eltolas<-(4-ch+a)*100 #eltolás
 
-ITRAD<-matrix(0,cs,2*felablak)
+#ITRAD<-matrix(0,cs,2*felablak)
+
+#				if(ch>=min(thal) && ch<=max(thal)) {jel<-length(thal)
+				#a<-min(thal)
+				#b<-max(thal)
+				#sejt<-"thal"
+				#elektav<-50
+				#}
+
 ## Traditional CSD method
-for(j in 1:(2*felablak)){ 
-ITRAD[thal[1],j]<- (DATLAG[thal[1],j] - 2*DATLAG[thal[2],j] + DATLAG[thal[3],j])/50^2
-  ITRAD[thal[2]:(thal[31]),j]<- (DATLAG[thal[1]:(thal[30]),j] - 2*DATLAG[thal[2]:(thal[31]),j] + DATLAG[thal[3]:(thal[32]),j])/50^2
-ITRAD[thal[32],j]<- (DATLAG[thal[32],j] - 2*DATLAG[thal[31],j] + DATLAG[thal[30],j])/50^2
-      }
+ITRAD<-array(0,c(jel,2*felablak))
+for(lap in a:b){
+  if (lap==a) ITRAD[lap-a+1,]<-( DATLAG[lap+1,] - DATLAG[lap,])/elektav^2
+  else if (lap==b) ITRAD[lap-a+1,]<-( DATLAG[lap-1,] - DATLAG[lap,])/elektav^2
+  else ITRAD[lap-a+1,]<-(DATLAG[lap-1,] + DATLAG[lap+1,] - 2*DATLAG[lap,])/elektav^2
+}
+remove(lap)
 
 
 later<-0
@@ -344,6 +357,9 @@ imaxhol<-which(max(abs(I))==abs(I),arr.ind=TRUE)
 ##Ihej <- Ihej/max(abs(Ihej))
 dipolcsat<-legen$dipolcsat
 minPot<-legen$minPot
+
+
+if(d==1) cat('A ', ch, '-as csatornan a dipolcsat:',dipolcsat , '\n')
 
 #maxI<-max(I[,(felablak):(felablak+utan/2)])
 #sumI2<-sqrt(sum(I[-(dipolcsat),(felablak):(felablak+utan/2)]^2))
@@ -529,7 +545,9 @@ fonev<-paste('Averaged extracellular potential (ch',ch,')')
 y.skala<-felbontas
 nemlinplot(y.skala,mit,xnev, ynev, fonev)
 
-ITRAD.ip<-interpol(el.poz,ITRAD[(ch2-(dipolcsat-1)): (ch2+(dipolcsat-1)) ,],felbontas)
+#ITRAD.ip<-interpol(el.poz,ITRAD[(ch2-(dipolcsat-1)): (ch2+(dipolcsat-1)) ,],felbontas)
+ITRAD.ip<-interpol(el.poz,ITRAD[(ch2-(dipolcsat-1)-a+1): (ch2+(dipolcsat-1)-a+1) ,],felbontas)
+
 ##mit<- -ITRAD                     ## Plotting the traditional CSD (the negative of the 2nd spatial derivatives)
 mit<- -ITRAD.ip                     ## Plotting the traditional CSD (the negative of the 2nd spatial derivatives)
 ##mit<-mit[thal[1]:thal[32],]   ## Plotting only the thalamus channels

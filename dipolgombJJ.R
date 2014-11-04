@@ -70,7 +70,7 @@ legendre<-function(tavolsag,potencial){
 
 tavol<-tavolsag #a gömb középpontja az elektródától d...
 
-numshellsMax<-8
+numshellsMax<-(b-a+1)/2
 radiiONelectrodes <- 'YES'   ### choose 'YES' if radii of shells are on the electrodes
 ###radiiONelectrodes <- 'NO' ### choose 'NO' if radii are chosen so shells have equal widths
 
@@ -113,9 +113,11 @@ if(ch>=min(thal) && ch<=max(thal)) {jel<-length(thal)
 #k
 
 ##ch2<-which(min(potencial)==potencial,arr.ind=TRUE)[1]## Added ch2 which has largest negative value of potential
-minPot<-min(potencial[a:b,])
-ch2<-which(minPot==potencial[a:b,],arr.ind=TRUE)[1]+c(a:b)[1]-1 ## Added ch2 which has largest negative value of potential
+minPot<-min(potencial[(a+1):(b-1),(ablak*mintf/2-20):(ablak*mintf/2+20)])
+ch2<-which(minPot==potencial[(a+1):(b-1),(ablak*mintf/2-20):(ablak*mintf/2+20)],arr.ind=TRUE)[1]+c(a:b)[1] ## Added ch2 which has largest negative value of potential
 dipolcsat<-min(numshellsMax,min(ch2-a+1,b-ch2+1))   ## Don't allow too many shells for middle channels
+
+
 ##dipolcsat<-min(ch2-a+1,b-ch2+1) #ahol van  #legalább egy belső héj van
 #dipolcsat<-max(dipolcsat,1) #legalább egy belső héj van
 ##cat(paste('A ch2:',ch2))

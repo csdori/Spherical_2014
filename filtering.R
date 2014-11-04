@@ -34,7 +34,7 @@ dir.create(dirname) #csinálunk egy mappát!!!  ## create the directory
 #################SZŰRÉS############################
 #szűrés paraméterei
 setwd(parent)
-setwd(dirname) 
+#setwd(dirname) 
 
 #################
 wowtime<-vector("list",cs) ## create vector of length cs=65
@@ -80,8 +80,8 @@ matplot(t(adat.filt.gamma[1:50,1:9000]),t="l")
 ##########################
 #küszöb meghatározása
 thres<-numeric(cs)
-#thres<-apply(adat.filt,1,sd)*2
-thres<-rep(-170,cs)
+thres<-apply(adat.filt.mua,1,sd)*(-2)
+#thres<-rep(-170,cs)
 #################  SPIKEDETEKTÁLÁS   #####################
 cat('Spike detection')
 
@@ -365,6 +365,11 @@ valami<-tuskek%*%tuskek.pca$loadings[,1:newDim] #spm alapján
 #pairs(valami)
 
 klaszter<-Mclust(valami, minG=2,maxG=15)
+klaszterplotname<-paste("klaszPlot_csat_",ch,".png", sep = "")
+png(pointsize=bm,filename = klaszterplotname, width = 900, height = 900)
+par(mfrow=c(2,2))
+plot(klaszter,ask=FALSE)
+dev.off()
 klaszt.uncertainty<-klaszter$uncertainty
 klaszt.bic<-klaszter$BIC
 #klaszter
