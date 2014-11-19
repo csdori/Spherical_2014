@@ -1,7 +1,8 @@
 FirstSpikeOnly<- "yes" #no
+WhichState<-"Up" #"Up" "Down" "Both"
 #cat("Only first spike of bursts taken into account")
-
-
+MiMiName<-paste(mentes,"/MIMI_ch",ch,sep='')
+MiMi<-read.table(MiMiName)
 start<-1
 ABLAK<-c(0.02,0.004)
 ##idoskal<-2 #itt alapból for ciklus van.. de hát...

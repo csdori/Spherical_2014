@@ -18,7 +18,7 @@ WhereamI<-'otthon' #kfki
 if (WhereamI=='otthon'){
   parent<-'/media/BA0ED4600ED416EB/agy/adat_acsadi/sil20_erdekes'
   forras1<-'/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/'
-  mentes<-"/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/elem_4"
+  mentes<-"/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/elem_6"
   setwd('/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/')
 } 
 #if (WhereamI=='kfki'){
@@ -44,7 +44,7 @@ if (DoClustering=='Yes'){
   cat("Clustering \n")
   Currentfolder<-getwd()
   setwd(parent)
-  source(paste(forras1, 'filtering.R',sep=''))
+  source(paste(forras1, 'filtering.R',sep=''),local=TRUE)
   SpikeSorting(fajlnev)
   #source(paste(forras1, 'DESO_ujJJ.R',sep=''))
   setwd(Currentfolder)

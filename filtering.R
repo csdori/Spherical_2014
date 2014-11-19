@@ -2,12 +2,12 @@
 
 SpikeSorting<-function(fajlnev){
 library("signal")
+library("clv")
 ## open the file for reading in binary mode
 fid<-file(fajlnev,"rb")
 #
 #fontsize for figures
 bm<-18 #betűméret az ábrákon
-
 #mennyi időt olvasson be (sec)?
 ## time step 
 dt<-10 #(s-ban,10-enként változtatható)
@@ -139,8 +139,7 @@ if (detectState=="yes"){
 #   Gamma RMS 50 egysgnyi mozgóátlag
 #melyik csatorna cuccait ábrázoljuk??
 #csat<-8
-updown<-adat[1:32,] #csak létrehozunk egy ekkora tömböt
-updown.mua<-adat[1:32,]
+
 
 rmsszamol<-function(adatsor){
   hossz<-50*adatsec #hány ms-ra simítunk
@@ -164,162 +163,170 @@ detekt<-function(x){
   return(hataratlepes)
 }
 
-
+updown.list<-vector("list",32)
+updown.mua.list<-vector("list",32)
 for(csat in 1:32){
-cat(csat)
-
-allapot<-c(rep(0,dt*mintf))
-allapot.mua<-c(rep(0,dt*mintf))
-
-hol<-detekt(adat.gamma.rms[csat,])
-hol.mua<-detekt(adat.mua.rms[csat,])
-allapot[hol]<-1
-allapot.mua[hol.mua]<-1
-
-#mitCsat<-17
-#plot(adat.filt.gamma[mitCsat,1:100000],t='l')
-#lines(adat.gamma.rms[mitCsat,1:100000],col='BLUE')
-#lines(allapot[1:100000]*500,col='RED')
-
-#plot(adat.filt.mua[mitCsat,1:10000],t='l')
-#lines(adat.mua.rms[mitCsat,1:10000],col='BLUE')
-#lines(allapot.mua[1:10000]*200,col='GREEN')
-#ez csak az adorr csatornára vonatkozik
-fel<-numeric()
-le<-numeric()
-for(i in 2:(dt*mintf)){
-if(allapot.mua[i-1]==0 && allapot.mua[i]==1){
-fel<-c(fel,i+start*mintf)
+  cat(csat)
+  
+  allapot<-c(rep(0,dt*mintf))
+  allapot.mua<-c(rep(0,dt*mintf))
+  
+  hol<-detekt(adat.gamma.rms[csat,])
+  hol.mua<-detekt(adat.mua.rms[csat,])
+  allapot[hol]<-1
+  allapot.mua[hol.mua]<-1
+  #Which spike is in up state
+  updown<-c(rep(0,length(wowtime1[[csat]])))
+  updown.mua<-c(rep(0,length(wowtime1[[csat]])))
+  updown[which(is.element(wowtime1[[csat]]*mintf,hol)==TRUE)]<-1
+  updown.mua[which(is.element(wowtime1[[csat]]*mintf,hol.mua)==TRUE)]<-1
+  
+  updown.list[[csat]]<-updown
+  updown.mua.list[[csat]]<-updown.mua
+  #mitCsat<-17
+  #plot(adat.filt.gamma[mitCsat,1:100000],t='l')
+  #lines(adat.gamma.rms[mitCsat,1:100000],col='BLUE')
+  #lines(allapot[1:100000]*500,col='RED')
+  
+  #plot(adat.filt.mua[mitCsat,1:10000],t='l')
+  #lines(adat.mua.rms[mitCsat,1:10000],col='BLUE')
+  #lines(allapot.mua[1:10000]*200,col='GREEN')
+  #ez csak az adorr csatornára vonatkozik
+  fel<-numeric()
+  le<-numeric()
+  for(i in 2:(dt*mintf)){
+    if(allapot.mua[i-1]==0 && allapot.mua[i]==1){
+      fel<-c(fel,i+start*mintf)
+    }
+    if(allapot.mua[i-1]==1 && allapot.mua[i]==0){
+      le<-c(le,i+start*mintf)
+    }
+  }
+  
+  #throwing out the detected changes in up and down states, whoch are shorter, than 50 ms
+  torol<-numeric()
+  for(i in 1:length(fel)){
+    if(abs(le[i]-fel[i])< (50*adatsec))
+      torol<-c(torol,i)
+  }
+  fel<-fel[-torol]
+  le<-le[-torol]
+  fel.ido<-fel/mintf
+  le.ido<-le/mintf
+  
+  
+  
+  
+  
+  felnev<-paste('UPglobido_csat_',csat,sep='')
+  write.table(fel.ido, felnev)
+  lenev<-paste('DOWNglobido_csat_',csat,sep='')
+  write.table(le.ido, lenev)
+  
+  #fel állapot detektálása
+  #fel<-vector("list",32)
+  #le<-vector("list",32)
+  #for(i in 2:(dt*mintf)){
+  #if(allapot.mua[i-1]==0 && allapot.mua[i]==1){
+  #fel[[csat]]<-c(fel[[csat]],i+start*mintf)
+  #}
+  #if(allapot.mua[i-1]==1 && allapot.mua[i]==0){
+  #le[[csat]]<-c(le[[csat]],i+start*mintf)
+  #}
+  #}
+  #az elso ár utolsó hamis detekció...
+  
+  
+  #hol<-apply(adat.gamma.rms,1,detekt)
+  #hol2<-as.matrix(hol)
+  #allapot[hol2]<-1
+  y <- adat[csat,]
+  z <- adat.filt.gamma[csat,]
+  v<-adat.filt.mua[csat,]
+  w<-adat.gamma.rms[csat,]
+  wmua<-adat.mua.rms[csat,]
+  
+  
+  #gördülős R ábra
+  legordul<-0
+  if(legordul==1){
+    
+    a<-allapot
+    tt <- tktoplevel()
+    left <- tclVar(1)
+    oldleft <- tclVar(1)
+    right <- tclVar(2000)
+    
+    f1 <- function(){
+      lleft <- as.numeric(tclvalue(left))
+      rright <- as.numeric(tclvalue(right))
+      x <- seq(lleft,rright,by=1)
+      par(mfrow=c(4,1), mar=c(1.5,1,0.5,0.5) ,oma=c(0.5,1,0.5,0.5) )
+      #layout(matrix(c(1:4),4,1),widths=c(1,1,1,1), 		heights=c(3,2,2,1))
+      plot(x/adatsec,y[x],ylim=range(y),t='l', xaxt="n")
+      plot(x/adatsec,z[x],t='l', col='RED', xaxt="n")
+      lines(x/adatsec,w[x], col='PURPLE')
+      plot(x/adatsec,v[x],t='l', col='BLUE', xaxt="n")
+      plot(x/adatsec,a[x],t='l', col='BLUE',xlab='ms')
+    }
+    
+    img <- tkrplot(tt, f1,hscale=2,vscale=1)
+    
+    f2 <- function(...){
+      ol <- as.numeric(tclvalue(oldleft))
+      tclvalue(oldleft) <- tclvalue(left)
+      r <- as.numeric(tclvalue(right))
+      tclvalue(right) <- as.character(r + as.numeric(...) - ol)
+      tkrreplot(img)
+    }
+    
+    f3 <- function(...){
+      tkrreplot(img)
+    }
+    
+    f4 <- function(...){
+      ol <- as.numeric(tclvalue(oldleft))
+      tclvalue(left) <- as.character(ol+2000)
+      tclvalue(oldleft) <- as.character(ol+2000)
+      r <- as.numeric(tclvalue(right))
+      tclvalue(right) <- as.character(r+2000)
+      tkrreplot(img)
+    }
+    
+    s1 <- tkscale(tt, command=f2, from=1, to=length(y),
+                  variable=left, orient="horiz",label='left')
+    s2 <- tkscale(tt, command=f3, from=1, to=length(y),
+                  variable=right, orient="horiz",label='right')
+    b1 <- tkbutton(tt, text='->', command=f4)
+    
+    tkpack(img,s1,s2,b1) 
+  } #legordul
+  
+  
+  abranev<-paste('UD_csat_',csat,'.png',sep='')
+  #abranev<-paste('/media/BA0ED4600ED416EB/agy/sCSD_git/leiras/pics/UD2_csat_',csat,'.png',sep='')
+  
+  png(abranev, width=1600, height=800,pointsize = 30)
+  par(mfrow=c(4,1), mar=c(1.5,1,0.5,0.5) ,oma=c(0.5,1,2,0.5) )
+  cim<-paste(csat,'. csatorna',sep='')
+  
+  layout(matrix(c(1:4),4,1),widths=c(1,1,1,1), 		heights=c(2,2,2,1))
+  x<-1:(dt*mintf)
+  plot(x/adatsec,y[x],ylim=range(y),t='l', xaxt="n")
+  legend("bottomright","Nyers adat",pch=20,bg="WHITE")
+  plot(x/adatsec,z[x],t='l', col='RED', xaxt="n")
+  lines(x/adatsec,w[x], col='PURPLE',lwd=2)
+  legend("bottomright",c("gamma", "gamma RMS"),pch=20,col=c('RED','PURPLE'),bg="WHITE")
+  plot(x/adatsec,v[x],t='l', col='BLUE', xaxt="n")
+  lines(x/adatsec,wmua[x], col='PURPLE',lwd=2)
+  legend("bottomright",c("MUA","MUA RMS"),pch=20,col=c('BLUE','PURPLE'),bg="WHITE")
+  plot(x/adatsec,allapot[x],t='l',xlab='ms',col='RED',lwd=2)
+  lines(x/adatsec,allapot.mua[x],col='BLUE',lwd=2)
+  legend("bottomright",c("gamma","MUA"),col=c('RED','BLUE'),pch=20,bg="WHITE")
+  mtext(cim, NORTH<-3, line=0, adj=0.5, cex=1, outer=TRUE)
+  dev.off()
 }
-if(allapot.mua[i-1]==1 && allapot.mua[i]==0){
-le<-c(le,i+start*mintf)
-}
-}
 
-#throwing out the detected changes in up and down states, whoch are shorter, than 50 ms
-torol<-numeric()
-for(i in 1:length(fel)){
-if(abs(le[i]-fel[i])< (50*adatsec))
-torol<-c(torol,i)
-}
-fel<-fel[-torol]
-le<-le[-torol]
-fel.ido<-fel/mintf
-le.ido<-le/mintf
-
-
-
-
-
-felnev<-paste('UPglobido_csat_',csat,sep='')
-write.table(fel.ido, felnev)
-lenev<-paste('DOWNglobido_csat_',csat,sep='')
-write.table(le.ido, lenev)
-
-#fel állapot detektálása
-#fel<-vector("list",32)
-#le<-vector("list",32)
-#for(i in 2:(dt*mintf)){
-#if(allapot.mua[i-1]==0 && allapot.mua[i]==1){
-#fel[[csat]]<-c(fel[[csat]],i+start*mintf)
-#}
-#if(allapot.mua[i-1]==1 && allapot.mua[i]==0){
-#le[[csat]]<-c(le[[csat]],i+start*mintf)
-#}
-#}
-#az elso ár utolsó hamis detekció...
-
-
-#hol<-apply(adat.gamma.rms,1,detekt)
-#hol2<-as.matrix(hol)
-#allapot[hol2]<-1
-y <- adat[csat,]
-z <- adat.filt.gamma[csat,]
-v<-adat.filt.mua[csat,]
-w<-adat.gamma.rms[csat,]
-wmua<-adat.mua.rms[csat,]
-
-
-#gördülős R ábra
-legordul<-0
-if(legordul==1){
-
-a<-allapot
-tt <- tktoplevel()
-left <- tclVar(1)
-oldleft <- tclVar(1)
-right <- tclVar(2000)
-
-f1 <- function(){
-        lleft <- as.numeric(tclvalue(left))
-        rright <- as.numeric(tclvalue(right))
-        x <- seq(lleft,rright,by=1)
-	par(mfrow=c(4,1), mar=c(1.5,1,0.5,0.5) ,oma=c(0.5,1,0.5,0.5) )
-	#layout(matrix(c(1:4),4,1),widths=c(1,1,1,1), 		heights=c(3,2,2,1))
-        plot(x/adatsec,y[x],ylim=range(y),t='l', xaxt="n")
-	plot(x/adatsec,z[x],t='l', col='RED', xaxt="n")
-	lines(x/adatsec,w[x], col='PURPLE')
-	plot(x/adatsec,v[x],t='l', col='BLUE', xaxt="n")
-	plot(x/adatsec,a[x],t='l', col='BLUE',xlab='ms')
-}
-
-img <- tkrplot(tt, f1,hscale=2,vscale=1)
-
-f2 <- function(...){
-        ol <- as.numeric(tclvalue(oldleft))
-        tclvalue(oldleft) <- tclvalue(left)
-        r <- as.numeric(tclvalue(right))
-        tclvalue(right) <- as.character(r + as.numeric(...) - ol)
-        tkrreplot(img)
-}
-
-f3 <- function(...){
-        tkrreplot(img)
-}
-
-f4 <- function(...){
-        ol <- as.numeric(tclvalue(oldleft))
-        tclvalue(left) <- as.character(ol+2000)
-        tclvalue(oldleft) <- as.character(ol+2000)
-        r <- as.numeric(tclvalue(right))
-        tclvalue(right) <- as.character(r+2000)
-        tkrreplot(img)
-}
-
-s1 <- tkscale(tt, command=f2, from=1, to=length(y),
-        variable=left, orient="horiz",label='left')
-s2 <- tkscale(tt, command=f3, from=1, to=length(y),
-        variable=right, orient="horiz",label='right')
-b1 <- tkbutton(tt, text='->', command=f4)
-
-tkpack(img,s1,s2,b1) 
-} #legordul
-
-
-abranev<-paste('UD_csat_',csat,'.png',sep='')
-#abranev<-paste('/media/BA0ED4600ED416EB/agy/sCSD_git/leiras/pics/UD2_csat_',csat,'.png',sep='')
-
-png(abranev, width=1600, height=800,pointsize = 30)
-par(mfrow=c(4,1), mar=c(1.5,1,0.5,0.5) ,oma=c(0.5,1,2,0.5) )
-	cim<-paste(csat,'. csatorna',sep='')
-	
-	layout(matrix(c(1:4),4,1),widths=c(1,1,1,1), 		heights=c(2,2,2,1))
-	x<-1:(dt*mintf)
-        plot(x/adatsec,y[x],ylim=range(y),t='l', xaxt="n")
-	legend("bottomright","Nyers adat",pch=20,bg="WHITE")
-	plot(x/adatsec,z[x],t='l', col='RED', xaxt="n")
-	lines(x/adatsec,w[x], col='PURPLE',lwd=2)
-	legend("bottomright",c("gamma", "gamma RMS"),pch=20,col=c('RED','PURPLE'),bg="WHITE")
-	plot(x/adatsec,v[x],t='l', col='BLUE', xaxt="n")
-	lines(x/adatsec,wmua[x], col='PURPLE',lwd=2)
-	legend("bottomright",c("MUA","MUA RMS"),pch=20,col=c('BLUE','PURPLE'),bg="WHITE")
-	plot(x/adatsec,allapot[x],t='l',xlab='ms',col='RED',lwd=2)
-	lines(x/adatsec,allapot.mua[x],col='BLUE',lwd=2)
-	legend("bottomright",c("gamma","MUA"),col=c('RED','BLUE'),pch=20,bg="WHITE")
-	mtext(cim, NORTH<-3, line=0, adj=0.5, cex=1, outer=TRUE)
-dev.off()
-
-}
 
 } #up & down
 ####################  PCA   ###########################
@@ -333,6 +340,7 @@ MIMI<-vector("list",cs)
 kod1<-vector("list",cs)
 kod2<-vector("list",cs)
 kod<-vector("list",cs)
+klaszt.jell<-vector("list",cs)
 #for(ch in (2:(cs-1))){
 #for(ch in 2:10){
 for(sz in 2:(csathossz-1)){
@@ -342,7 +350,7 @@ al<-numeric()
 af<-numeric()
 valami<-numeric()
 klaszter<-numeric()
-klaszt.jell<-numeric()
+
 klaszt.uncertainty<-numeric()
 klaszt.bic<-numeric()
 mimi<-numeric()
@@ -366,12 +374,23 @@ valami<-tuskek%*%tuskek.pca$loadings[,1:newDim] #spm alapján
 
 klaszter<-Mclust(valami, minG=2,maxG=15)
 klaszterplotname<-paste("klaszPlot_csat_",ch,".png", sep = "")
-png(pointsize=bm,filename = klaszterplotname, width = 900, height = 900)
-par(mfrow=c(2,2))
-plot(klaszter,ask=FALSE)
-dev.off()
+#png(pointsize=bm,filename = klaszterplotname, width = 900, height = 900)
+#par(mfrow=c(2,2))
+#plot(klaszter,ask=FALSE)
+#dev.off()
 klaszt.uncertainty<-klaszter$uncertainty
 klaszt.bic<-klaszter$BIC
+bicname<-paste("bic",ch,".png", sep = "")
+png(bicname)
+matplot(klaszter$BIC[,1:10], pch = 1:10, type = "o", col = rainbow(10))
+dev.off()
+
+
+#‘cls.scatt.data’ returns an object of class ‘"list"’. Intracluster diameters: ‘intracls.complete’, ‘intracls.average’,     ‘intracls.centroid’, are stored in vectors and intercluster     distances: ‘intercls.single’, ‘intercls.complete’, ‘intercls.average’, ‘intercls.centroid’, ‘intercls.ave_to_cent’,     ‘intercls.hausdorff’ in symmetric matrices.  Vectors' lengths and     both dimensions of each matrix are equal to number of clusters.     Additionally in result list ‘cluster.center’ matrix (rows correspond to clusters centers) and ‘cluster.size’ vector is given     (information about size of each cluster).
+klaszt.jell[[ch]]<-cls.scatt.data(valami,klaszter$classification)
+#klasztjellname<-paste('klasztjell_ch_',ch,sep='')
+klasztjellnamekpca<-paste('klasztjellkpca_ch_',ch,sep='')
+lapply(klaszt.jell[[ch]], cat, "\n", file=klasztjellnamekpca, append=TRUE)
 #klaszter
 #a valami hordozza a klaszterezendő adatpontokat, a
 #klaszter$classification pedig hogy melyik klaszterbe tartoznak
@@ -380,11 +399,22 @@ klaszt.bic<-klaszter$BIC
 #klaszt.jell<-cls.scatt.data(valami,klaszter$classification)
 #%klasztjellname<-paste('klasztjell_ch_',ch,sep='')
 #write.table(klaszt.jell,klasztjellname) #??
+if (ch<33){
+  mimi<-c(klaszter$classification,wowtime[[ch]],klaszt.uncertainty,updown.list[[ch]],updown.mua.list[[ch]])
+  dimMimi<-length(klaszter$classification)
+  #klaszterszámok és pontszám egymás mellett    
+  mimi<-matrix(mimi, nrow=dimMimi, dimnames = list(c(1:dimMimi),
+                                                          c("klaszterszam", "globido","uncertainty","updown","updown.mua")))
+}
+if (ch>33){
+  mimi<-c(klaszter$classification,wowtime[[ch]],klaszt.uncertainty)
+  
+  #klaszterszámok és pontszám egymás mellett    
+  mimi<-matrix(mimi, nrow=length(mimi)/3, dimnames = list(c(1:(length(mimi)/3)),
+                                                          c("klaszterszam", "globido","uncertainty")))
+}
 
-mimi<-c(klaszter$classification,wowtime[[ch]])
-#klaszterszámok és pontszám egymás mellett    
-mimi<-matrix(mimi, nrow=length(mimi)/2, dimnames = list(c(1:(length(mimi)/2)),
-           c("klaszterszam", "globido")))
+
 
 colnames(valami)<-c('1. főkomponens','2. főkomponens','3. főkomponens','4. főkomponens','5. főkomponens','6. főkomponens')
 
