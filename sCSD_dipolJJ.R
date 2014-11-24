@@ -39,7 +39,7 @@ if(file.exists(mentes)==FALSE) dir.create(mentes)
 source("beolvasas_para.R")
 
 #Do you want to run the clustering on a specific data?
-DoClustering<-"Yes"#'Yes' #No
+DoClustering<-"No" #Yes"#'Yes' #No
 if (DoClustering=='Yes'){
   cat("Clustering \n")
   Currentfolder<-getwd()
@@ -77,7 +77,8 @@ source("imaging.R")
 #nem lineárás színskálás ábrák
 ##source("nemlinplot.R")
 source("nemlinplot2.R")       ### USING NEW FILE FOR PLOTTING WITH NONLINEAR COLOR SCALING
-
+#for calculating cluster average
+source("tuskerajz.R")
 #dipolgombos
 source("dipolgombJJ.R")   ## Using my revised code
 ##source("dipolgomb.R")
@@ -124,23 +125,6 @@ setwd(parent)
 #dirname1<-paste(ablak,'sec',sep='')  
 #dir.create(dirname1) #csinálunk egy mappát!!! 
 #setwd(dirname1) 
-
-
-sejttav<-numeric() #sejread.tavtek távolsága az elektródától ill amplitúdójuk?
-
-DistCompDirac<-numeric()     	## Array for saving computed distances using dirac method
-DistCompHej<-numeric()		## Array for saving computed distance using shell method
-DistCompDirac3<-numeric()
-DistCompHej3<-numeric()
-DistCompDirac4<-numeric()
-DistCompHej4<-numeric()
-MaxPots<-numeric()
-CellNames<-character()
-
-dmin<-1
-dmax<-150
-dstepsize<-1
-somawidth<-5
 
 
 #for(ch in 2:(cs-1)){  #végigmegyünk a csatornákon
@@ -192,79 +176,23 @@ for(k in 1:max(klaszter)){  #megyünk az adott csatornén lévő klasztereken v�
 
 #############
 
-A<-1   
-B<-length(wow)
-
-sum<-matrix(c(rep(0,2*felablak*cs)),nrow=cs)
-negyzet<-matrix(c(rep(0,2*felablak*cs)),nrow=cs)
-szorasnegyzet<-matrix(c(rep(0,2*felablak*cs)),nrow=cs)
-szoras<-matrix(c(rep(0,2*felablak*cs)),nrow=cs)
-t<-matrix(c(rep(0,2*felablak*cs)),nrow=cs)
-db<-0   #tüskék száma az adott klaszterben
-atlag<-matrix(c(rep(0,2*felablak*cs)),nrow=cs) #csak 16 csatorna esetén adja ki az összeset!!! 
-isi<-numeric()
-idopontok<-numeric()
-elozo<-0
-
-
-
 #kirajzolunk pár tüskét egy adott klaszterből
 #ebben van az adatbeovasás is
 setwd( forras1)  ## set working directory to read in R file
-source("tuskerajz.R")
 
+FirstSpikeOnl<- "yes" #no
+state.wanted<-1 #"Up"=1, "Down"=0, "Both"=3
+ClustAve<-ClusterAverage(FirstSpikeOnly="no",state.wanted=3)
 #########################
 #mt[order(mt[,1]),]
 ###############
 
-
-cat('idopontok elmentese\n')
-#idopontok elmentese
-idopon.nev<-paste('ido_',ch,'_k_',k,sep='')
-write.table(idopontok,idopon.nev)
-#ide kéne valami acf
-#acf(idopontok, type="correlation") ####
-#legyen a fel ms-os binelésű
-
-ido<-numeric()
-ido<-idopontok
-if(length(ido)==0) break
-rm(idopontok)
-
-bhossz<-0.5 #ms
-mintf<-20000
-#ahhoz, hogy tudjunk kerekíteni egész számra szorozzunk meg mindent kettővel
-#és az ido-t szorozzuk meg ezerrel, hogy ms-ben legyen...
-
-ido.max<-max(ido)
-idopontok<-seq(from=0, to=2*ido.max*1000, by=2*bhossz)
-ido2<-2*1000*ido
-
-ido.ts<-rep(0,length(idopontok ))
-for(i in 1:length(ido)){
-ido.ts[ceiling(ido2[i])]<-ido.ts[floor(ido2[i])]+1
-}
-
-idosor<-matrix(c(idopontok,ido.ts),ncol=2)
-lagmeret<-40
-
-acfeleje<-acf(idosor[,2],demean=FALSE,ylim=c(0,0.2),lag.max=lagmeret)
-acfvege<-acf(rev(idosor[,2]),demean=FALSE,ylim=c(0,0.1),lag.max=lagmeret)
-
-acfmain<-paste("acf fél ms-os bineléssel (",ch,". csatorna", k,". klaszter)" , sep = "")
-acfname<-paste("acf_csat_",ch,"_k_", k,".png", sep = "")
-#png(pointsize=bm,filename = acfname, width = 700, height = 700)
-#barplot(c(rev(acfvege$acf),acfeleje$acf)*sum(idosor[,2]),xlim=c(0,2*lagmeret), main='acf fél ms-os bineléssel')
-#dev.off()
-
+db<-ClustAve$db
 #####################
-
 if(db!=0 && db!=1){
-ATLAG<-sum/db
-
-DATLAG<-data.matrix(ATLAG)
-DATLAG<-DATLAG-rowMeans(DATLAG[,-((ablak/4*mintf):(ablak*3/4*mintf))])
-
+ATLAG<-ClustAve$ATLAG
+DATLAG<-ClustAve$DATLAG
+isi<-ClustAve$isi
 #interpolálás az r.all esetre
 
 #t-test
@@ -293,27 +221,9 @@ try(source(paste(forras1,"isi.R",sep="")))
 
 
 #transzfermátrix
-konst<-1  #valójában 1/(4*pi*epsilon*sigma)
+#konst<-1  #valójában 1/(4*pi*epsilon*sigma)
 
 
-
-
-#aramrajz<-matrix(rep(0,jel*ablak*mintf),nrow=jel) #amit kirajzolunk 
-#S<-numeric() #csúcsosságon alapuló mérték
-#S2<-numeric()
-#S3<-numeric()
-#tav<-1 #innen indul a távolság
-
-#eltolas<-(4-ch+a)*100 #eltolás
-
-#ITRAD<-matrix(0,cs,2*felablak)
-
-#				if(ch>=min(thal) && ch<=max(thal)) {jel<-length(thal)
-				#a<-min(thal)
-				#b<-max(thal)
-				#sejt<-"thal"
-				#elektav<-50
-				#}
 
 ## Traditional CSD method
 ITRAD<-array(0,c(jel,2*felablak))
@@ -323,6 +233,36 @@ for(lap in a:b){
   else ITRAD[lap-a+1,]<-(DATLAG[lap-1,] + DATLAG[lap+1,] - 2*DATLAG[lap,])/elektav^2
 }
 remove(lap)
+
+
+
+sejttav<-numeric() #sejread.tavtek távolsága az elektródától ill amplitúdójuk?
+
+DistCompDirac<-numeric()       ## Array for saving computed distances using dirac method
+DistCompHej<-numeric()		## Array for saving computed distance using shell method
+DistCompDirac3<-numeric()
+DistCompHej3<-numeric()
+DistCompDirac4<-numeric()
+DistCompHej4<-numeric()
+MaxPots<-numeric()
+CellNames<-character()
+
+dmin<-1
+dmax<-150
+dstepsize<-1
+somawidth<-5
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 later<-0
