@@ -11,7 +11,7 @@ fajlnev<-'p3d6.6whisker.dat'
 
 #whics machine do I use:
 #otthon
-WhereamI<-"kfki" 'otthon' #kfki
+WhereamI<-"kfki" #'otthon' #kfki
 
 
 # Up_down stat, first spike
@@ -19,7 +19,7 @@ FirstSpikeOnly<- "yes" #no
 state.wanted<-1 #"Up"=1, "Down"=0, "Together"=3
 
 #Do you want to calculate the coherence
-CalcCoh<-"No" #"yes" #"No"
+CalcCoh<-"No" "yes" #"No"
 #Do you want to run the clustering on a specific data?
 DoClustering<-"No" #Yes"#'Yes' #No
 
@@ -34,9 +34,9 @@ if (WhereamI=='otthon'){
   setwd('/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/')
 } 
 if (WhereamI=='kfki'){
-  parent<-'home/csdori/sil20_erdekes'
-  mentes<-paste("home/csdori/Spherical_sCSD_2014/",NameofSimulation,sep="")
-  forras1<-"home/csdori/Spherical_sCSD_2014/"
+  parent<-'/home/csdori/sil20_erdekes'
+  mentes<-paste("/home/csdori/Spherical_sCSD_2014/Spherical_2014/",NameofSimulation,sep="")
+  forras1<-"/home/csdori/Spherical_sCSD_2014/Spherical_2014/"
   
 }
 
@@ -120,7 +120,7 @@ setwd(mentes)
 cat("Calculation of coherence")
 q<-1
 dts<-10 #data length to read in  s
-seek(fid,where=((q-1)*cs*mintf*dt+start*cs*mintf)*2,origin="start",rw="read",)
+seek(fid,where=((q-1)*cs*mintf*dts+start*cs*mintf)*2,origin="start",rw="read",)
 adat<-readBin(fid, what='integer', size=2, n=cs*mintf*dts,endian="little",signed="TRUE")
 adat<-matrix(adat,nrow=cs)
 adat<-adat[csat.rend,]
@@ -715,7 +715,6 @@ write.table(DistancesMatrix,"Distances6methods",col.names=FALSE,row.names=FALSE)
 #file.copy('/home/jalics/sCSD_git/beolvasas_para.R', paste(mentes,"/",dirname,"/",dirname1,sep=""))
 
 cat("Reached End of sCSD_dipolJJ.R \n")
-
 
 
 
