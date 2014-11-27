@@ -16,7 +16,7 @@ WhereamI<-"kfki" #'otthon' #kfki
 
 # Up_down stat, first spike
 FirstSpikeOnly<- "yes" #no
-state.wanted<-1 #"Up"=1, "Down"=0, "Both"=3
+state.wanted<-1 #"Up"=1, "Down"=0, "Together"=3
 
 #Do you want to calculate the coherence
 CalcCoh<-"yes" #"No"
@@ -110,11 +110,14 @@ fid<-file(fajlnev,'rb')
 #dir.create(dirname1) #csinálunk egy mappát!!! 
 #setwd(dirname1) 
 
+
 cat("Parameterek beolvasva \n")
 
 
 ##Calculation of coherence
 if(CalcCoh=="yes"){
+setwd(mentes)
+cat("Calculation of coherence")
 q<-1
 dts<-10 #data length to read in  s
 seek(fid,where=((q-1)*cs*mintf*dts+start*cs*mintf)*2,origin="start",rw="read",)
@@ -136,8 +139,9 @@ for(cs1 in 1:65){
 }
 
 for(fs in 1:Freqnb){
-coherenceMatrix[,,fs]<-coherenceMatrix[,,fs]+t(coherenceMatrix[,,fs])
-phaseMatrix[,,fs]<-phaseMatrix[,,fs]+t(phaseMatrix[,,fs])
+coherenceMatrix[,,fs]<-(coherenceMatrix[,,fs]+t(coherenceMatrix[,,fs])
+diag(coherenceMatrix[,,fs])<-1
+phaseMatrix[,,fs]<-phaseMatrix[,,fs]-t(phaseMatrix[,,fs])
 cohName<-paste("coh_",FreqsLow[fs],"_",FreqsHigh[fs],sep="")
 phaseName<-paste("phase_",FreqsLow[fs],"_",FreqsHigh[fs],sep="")
 write.table(coherenceMatrix[,,fs],cohName,col.names=FALSE,row.names=FALSE) 
