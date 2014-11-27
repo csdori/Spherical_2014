@@ -1,34 +1,50 @@
 #itt már egy gömbmetszet mentén látszanak az áramforrássűrűség eloszlások
 #csak a nem túl nayg csatornaszámú gömbös részekre jó, mert az utolsó 9 csatorna le van vágva
 #source('/media/BA0ED4600ED416EB/agy/sCSD/sCSD_dipol.R')
-##source('~/Documents/Desktop/KFKI/Thalamus/sCSD_git/sCSD_dipolJJ.R')  ## copy at R prompt to run on Desktop
-##source('/home/jalics/sCSD_git/sCSD_dipolJJ.R')  ## copy at R prompt to run on tauri or uranus
+#source('~/Documents/Desktop/KFKI/Thalamus/sCSD_git/sCSD_dipolJJ.R')  ## copy at R prompt to run on Desktop
+#source('/home/jalics/sCSD_git/sCSD_dipolJJ.R')  ## copy at R prompt to run on tauri or uranus
 
 #Hol van az adat?
 fajlnev<-'p3d6.6whisker.dat'
 #fajlnev<-'p3d6.6.dat'
-##fajlnev2<-'p3d6.6whisker'  ##used when using Acsadi's own .clu and .res files
-
-
+#fajlnev2<-'p3d6.6whisker'  ##used when using Acsadi's own .clu and .res files
 
 #whics machine do I use:
 #otthon
-WhereamI<-'otthon' #kfki
+WhereamI<-"kfki" 'otthon' #kfki
+
+
+# Up_down stat, first spike
+FirstSpikeOnly<- "yes" #no
+state.wanted<-1 #"Up"=1, "Down"=0, "Both"=3
+
+#Do you want to calculate the coherence
+CalcCoh<-"yes" #"No"
+#Do you want to run the clustering on a specific data?
+DoClustering<-"No" #Yes"#'Yes' #No
+
+#Name of Simulation
+NameofSimulation<-paste(fajlnev,"_FS",FirstSpikeOnly,"_UpD",state.wanted,sep="")
+
 
 if (WhereamI=='otthon'){
   parent<-'/media/BA0ED4600ED416EB/agy/adat_acsadi/sil20_erdekes'
   forras1<-'/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/'
-  mentes<-"/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/elem_6"
+  mentes<-paste("/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/",NameofSimulation,sep="")
   setwd('/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/')
 } 
-#if (WhereamI=='kfki'){
-#  parent<-'/media/BA0ED4600ED416EB/agy/adat_acsadi/sil20_erdekes'
-#  forras1<-'/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/'
-#} 
+if (WhereamI=='kfki'){
+  parent<-'home/csdori/sil20_erdekes'
+  mentes<-paste("home/csdori/Spherical_sCSD_2014/",NameofSimulation,sep="")
+  forras1<-"home/csdori/Spherical_sCSD_2014/"
+  
+}
+
+
 if (WhereamI=='Jozsikfki'){
   parent<-"/home/jalics/sil20_erdekes"
   forras1<-"/home/jalics/sCSD_git" 
-  mentes<-"/home/jalics/ACSADI_elem_09"
+  mentes<-paste("/home/jalics/ACSADI_elem_09",NameofSimulation,sep="")
   setwd("/home/jalics/sCSD_git")  ## on tauri: Working directory for loading R files
 } 
 
@@ -38,8 +54,6 @@ if(file.exists(mentes)==FALSE) dir.create(mentes)
 #adatbeolvasás, paraméterek
 source("beolvasas_para.R")
 
-#Do you want to run the clustering on a specific data?
-DoClustering<-"No" #Yes"#'Yes' #No
 if (DoClustering=='Yes'){
   cat("Clustering \n")
   Currentfolder<-getwd()
@@ -67,7 +81,7 @@ dirname<-paste(fajlnev,'_',start,'_','sec_est',sep='')
 mappa<-paste(mentes,'/',dirname,sep='')  ## Folder name used in tuskerajz.R 
 
 #interpoláció
-##source("interpolacio.R")  ### We are using the interpolation function (inter) from the file dipolgombJJ.R
+#source("interpolacio.R")  ### We are using the interpolation function (inter) from the file dipolgombJJ.R
 
 ## since fields package not working causes error in image.plot
 
@@ -75,15 +89,15 @@ source("findpeaks.R")
 source("imaging.R")
 #source("LFPmean.R")
 #nem lineárás színskálás ábrák
-##source("nemlinplot.R")
+#source("nemlinplot.R")
 source("nemlinplot2.R")       ### USING NEW FILE FOR PLOTTING WITH NONLINEAR COLOR SCALING
 #for calculating cluster average
 source("tuskerajz.R")
 #dipolgombos
 source("dipolgombJJ.R")   ## Using my revised code
-##source("dipolgomb.R")
+#source("dipolgomb.R")
 #hova mentsük a dolgokat?
-
+source("coherence.R")
 
 
 
@@ -99,6 +113,44 @@ fid<-file(fajlnev,'rb')
 cat("Parameterek beolvasva \n")
 
 
+##Calculation of coherence
+if(CalcCoh=="yes"){
+q<-1
+dts<-10 #data length to read in  s
+seek(fid,where=((q-1)*cs*mintf*dt+start*cs*mintf)*2,origin="start",rw="read",)
+adat<-readBin(fid, what='integer', size=2, n=cs*mintf*dts,endian="little",signed="TRUE")
+adat<-matrix(adat,nrow=cs)
+adat<-adat[csat.rend,]
+FreqsLow<-c(1,7,20,50,200)
+FreqsHigh<-c(5,20,50,200,500)
+Freqnb<-length(FreqsLow)
+coherenceMatrix<-array(0,c(65,65,Freqnb))
+phaseMatrix<-array(0,c(65,65,Freqnb))
+
+for(cs1 in 1:65){
+  for (cs2 in cs1:65){
+    if (cs1==33 | cs2==33) next
+    coherenceMatrix[cs1,cs2,]<-coherence(adat[cs1,],adat[cs2,],FreqsLow,FreqsHigh)[,3]
+    phaseMatrix[cs1,cs2,]<-coherence(adat[cs1,],adat[cs2,],FreqsLow,FreqsHigh)[,4]
+    }
+}
+
+for(fs in 1:Freqnb){
+coherenceMatrix[,,fs]<-coherenceMatrix[,,fs]+t(coherenceMatrix[,,fs])
+phaseMatrix[,,fs]<-phaseMatrix[,,fs]+t(phaseMatrix[,,fs])
+cohName<-paste("coh_",FreqsLow[fs],"_",FreqsHigh[fs],sep="")
+phaseName<-paste("phase_",FreqsLow[fs],"_",FreqsHigh[fs],sep="")
+write.table(coherenceMatrix[,,fs],cohName,col.names=FALSE,row.names=FALSE) 
+write.table(phaseMatrix[,,fs],phaseName,col.names=FALSE,row.names=FALSE)
+cohphaseName<-paste("cohphase_",FreqsLow[fs],"_",FreqsHigh[fs],"plot",sep="")
+png(cohphaseName,width=1000,height=500)
+par(mfrow=c(1,2))
+image(coherenceMatrix[,,fs],col=rainbow(100),main="Coherence")
+image(phaseMatrix[,,fs],col=rainbow(100),main="Phase")
+dev.off()
+}
+remove(c(adat,coherenceMatrix,phaseMatrix,cohName,phaseName,cohphaseName,fs,dts,FreqsLow, FreqsHigh,Freqnb,cs1,cs2))
+}
 ##################
 #mértékek számolása a különböző esetekben
 
@@ -132,9 +184,9 @@ setwd(parent)
 ch<-csatorna[sz]
 #kikörések: 33-ason nincs semmi, a 34-esre meg meg kell csinálni, hogy az
 #alattalevőket nézi, mert most minden a felettelevőből számol
-##cluname<-paste(parent,"/",fajlnev2,".clu.",ch,sep='')  ## using Acsadi's clustering data
+#cluname<-paste(parent,"/",fajlnev2,".clu.",ch,sep='')  ## using Acsadi's clustering data
 cluname<-paste(mentes,"/",fajlnev,".clu.",ch,sep='')  ## using data from DESO_uj.R 
-##resname<-paste(parent,"/",fajlnev2,".res.",ch,sep='')  ## using Acsadi's clustering data
+#resname<-paste(parent,"/",fajlnev2,".res.",ch,sep='')  ## using Acsadi's clustering data
 resname<-paste(mentes,"/",fajlnev,".res.",ch,sep='')  ## using data from DESO_uj.R
 #Cheking whether files exist
 if(file.exists(cluname)==FALSE) next
@@ -180,9 +232,7 @@ for(k in 1:max(klaszter)){  #megyünk az adott csatornén lévő klasztereken v�
 #ebben van az adatbeovasás is
 setwd( forras1)  ## set working directory to read in R file
 
-FirstSpikeOnl<- "yes" #no
-state.wanted<-1 #"Up"=1, "Down"=0, "Both"=3
-ClustAve<-ClusterAverage(FirstSpikeOnly="no",state.wanted=3)
+ClustAve<-ClusterAverage(FirstSpikeOnly,state.wanted)
 #########################
 #mt[order(mt[,1]),]
 ###############

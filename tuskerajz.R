@@ -61,6 +61,7 @@ ClusterAverage<-function(FirstSpikeOnly="no",state.wanted=3){
   for(l in tol:ig){   # szétválasztjuk az ltp előtti és utáni klasztereket
     
     if (ch<33) state.l<-MiMi[l,5]
+  
     if(ch<33 && state.l!=state.wanted && state.wanted!=3) next
     if(klaszter[l]==k ){ 
       
@@ -174,8 +175,7 @@ ClusterAverage<-function(FirstSpikeOnly="no",state.wanted=3){
   
   ido<-numeric()
   ido<-idopontok
-  if(length(ido)==0) break
-  rm(idopontok)
+  if(length(ido)!=0){
   
   bhossz<-0.5 #ms
   
@@ -202,6 +202,7 @@ ClusterAverage<-function(FirstSpikeOnly="no",state.wanted=3){
   #png(pointsize=bm,filename = acfname, width = 700, height = 700)
   #barplot(c(rev(acfvege$acf),acfeleje$acf)*sum(idosor[,2]),xlim=c(0,2*lagmeret), main='acf fél ms-os bineléssel')
   #dev.off()
+} else isi=='NA'
   return(list(ATLAG=ATLAG,DATLAG=DATLAG,db=db,isi=isi))
 }
 

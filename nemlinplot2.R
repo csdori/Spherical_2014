@@ -1,5 +1,5 @@
 nemlinplot<-function(y.skala,mit,   xfel, yfel,mitmain){
-skalaz<-7 #mennyire legyen nemlineáris
+skalaz<-3 #7 #mennyire legyen nemlineáris
 tores<-300 #hány töréspont leszem=színek szama +1
 
 terj<-max(abs(mit))*1.01*2 # aszorzó azér kell hogy a szélső értékek heléyn ne fehét legye
