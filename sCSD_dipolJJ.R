@@ -21,10 +21,10 @@ state.wanted<-1 #"Up"=1, "Down"=0, "Both"=3
 #Do you want to calculate the coherence
 CalcCoh<-"yes" #"No"
 #Do you want to run the clustering on a specific data?
-DoClustering<-"No" #Yes"#'Yes' #No
+DoClustering<-"Yes" #Yes"#'Yes' #No
 
 #Name of Simulation
-NameofSimulation<-paste(fajlnev,"_FS",FirstSpikeOnly,"_UpD",state.wanted,sep="")
+NameofSimulation<-paste(fajlnev,"_ver1",sep="")
 
 
 if (WhereamI=='otthon'){
@@ -76,7 +76,7 @@ library(class)
 
 start<-1
 
-dirname<-paste(fajlnev,'_',start,'_','sec_est',sep='')
+dirname<-paste("_FS",FirstSpikeOnly,"_UpD",state.wanted,"_",start,"_","sec_est",sep='')
 
 mappa<-paste(mentes,'/',dirname,sep='')  ## Folder name used in tuskerajz.R 
 
@@ -163,7 +163,7 @@ remove(c(adat,coherenceMatrix,phaseMatrix,cohName,phaseName,cohphaseName,fs,dts,
 
 
 ##idoskal<-2 #itt alapból for ciklus van.. de hát... 
-idoskal<-2   ##choose 4ms or 20ms timewindow   NOTE:SEE tuskerajz.R,beolvasas_para.R
+idoskal<-1   ##choose 4ms or 20ms timewindow   NOTE:SEE tuskerajz.R,beolvasas_para.R
 ablak<-ABLAK[idoskal]   #az ábrák, számolások időablakának hossza
 felablak<-ablak/2*mintf #adatpontokban az időablak hosszának fele
 
