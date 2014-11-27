@@ -84,9 +84,7 @@ ClusterAverage<-function(FirstSpikeOnly="no",state.wanted=3){
             idopontok<-c(idopontok,wow[l]/mintf)
             db<-db+1
             
-            if(db!=1) isi<-c(isi,(wow[l]-elozo)/adatsec)  #ISI
-            elozo<-wow[l]
-            
+            if(db!=1) isi<-c(isi,(wow[l]-elozo)/adatsec)  #ISI           
             adat<-adat[csat.rend,]  #helyes elektródasorrend
             data<-adat[ch,]     #ez mér kell?
             
@@ -109,14 +107,12 @@ ClusterAverage<-function(FirstSpikeOnly="no",state.wanted=3){
           }
         }
         
-        
         if (FirstSpikeOnly!="yes"){
           
           idopontok<-c(idopontok,wow[l]/mintf)
           db<-db+1
           
           if(db!=1) isi<-c(isi,(wow[l]-elozo)/adatsec)  #ISI
-          elozo<-wow[l]
           
           adat<-adat[csat.rend,]  #helyes elektródasorrend
           data<-adat[ch,]     #ez mér kell?
@@ -140,7 +136,7 @@ ClusterAverage<-function(FirstSpikeOnly="no",state.wanted=3){
         }
         
         
-        
+        elozo<-wow[l]
       }#if abs...
       
       

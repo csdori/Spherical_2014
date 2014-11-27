@@ -19,7 +19,7 @@ FirstSpikeOnly<- "yes" #no
 state.wanted<-1 #"Up"=1, "Down"=0, "Together"=3
 
 #Do you want to calculate the coherence
-CalcCoh<-"yes" #"No"
+CalcCoh<-"No" #"yes" #"No"
 #Do you want to run the clustering on a specific data?
 DoClustering<-"No" #Yes"#'Yes' #No
 
