@@ -16,10 +16,10 @@ WhereamI<-"kfki" #'otthon' #kfki
 
 # Up_down stat, first spike
 FirstSpikeOnly<- "yes" #no
-state.wanted<-1 #"Up"=1, "Down"=0, "Together"=3
+state.wanted<-0 #"Up"=1, "Down"=0, "Together"=3
 
 #Do you want to calculate the coherence
-CalcCoh<-"No" "yes" #"No"
+CalcCoh<-"No" # "yes" #"No"
 #Do you want to run the clustering on a specific data?
 DoClustering<-"No" #Yes"#'Yes' #No
 
@@ -76,9 +76,10 @@ library(class)
 
 start<-1
 
-dirname<-paste("_FS",FirstSpikeOnly,"_UpD",state.wanted,"_",start,"_","sec_est",sep='')
+dirname<-paste("FS",FirstSpikeOnly,"_UpD",state.wanted,"_",start,"_","sec_est",sep='')
 
 mappa<-paste(mentes,'/',dirname,sep='')  ## Folder name used in tuskerajz.R 
+dir.create(mappa)
 
 #interpoláció
 #source("interpolacio.R")  ### We are using the interpolation function (inter) from the file dipolgombJJ.R
@@ -133,13 +134,14 @@ phaseMatrix<-array(0,c(65,65,Freqnb))
 for(cs1 in 1:65){
   for (cs2 in cs1:65){
     if (cs1==33 | cs2==33) next
-    coherenceMatrix[cs1,cs2,]<-coherence(adat[cs1,],adat[cs2,],FreqsLow,FreqsHigh)[,3]
-    phaseMatrix[cs1,cs2,]<-coherence(adat[cs1,],adat[cs2,],FreqsLow,FreqsHigh)[,4]
+	CohResult<-coherence(adat[cs1,],adat[cs2,],FreqsLow,FreqsHigh)
+    coherenceMatrix[cs1,cs2,]<-CohResult[,3]
+    phaseMatrix[cs1,cs2,]<-CohResult[,4]
     }
 }
 
 for(fs in 1:Freqnb){
-coherenceMatrix[,,fs]<-(coherenceMatrix[,,fs]+t(coherenceMatrix[,,fs])
+coherenceMatrix[,,fs]<-coherenceMatrix[,,fs]+t(coherenceMatrix[,,fs])
 diag(coherenceMatrix[,,fs])<-1
 phaseMatrix[,,fs]<-phaseMatrix[,,fs]-t(phaseMatrix[,,fs])
 cohName<-paste("coh_",FreqsLow[fs],"_",FreqsHigh[fs],sep="")

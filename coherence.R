@@ -19,8 +19,10 @@
 
 coherence<-function(series1, series2, freq.low, freq.high){
   if (length(freq.low)!=length(freq.high)) stop("Length of vectors should really be the same")
-
-  spec.result<-spectrum(cbind(series1, series2), fast=FALSE, taper=FALSE,
+  DataLength<-length(series1)/mintf
+  series1<-ts(series1,frequency=mintf)
+  series2<-ts(series2,frequency=mintf)
+  spec.result<-spectrum(ts.union(series1, series2), fast=FALSE, taper=FALSE,
                 spans = c(3,3),plot=FALSE)
 
   nlength<-length(freq.low)
@@ -29,8 +31,8 @@ coherence<-function(series1, series2, freq.low, freq.high){
   coh.matr[,1]<-freq.low
   coh.matr[,2]<-freq.high
   for(freq.band in 1:nlength){
-    coh.matr[freq.band,3]<-mean(spec.result$coh[freq.low[freq.band]:freq.high[freq.band]])
-    coh.matr[freq.band,4]<-mean(spec.result$phase[freq.low[freq.band]:freq.high[freq.band]])
+    coh.matr[freq.band,3]<-mean(spec.result$coh[ceiling(freq.low[freq.band]*DataLength):ceiling(freq.high[freq.band]*DataLength])
+    coh.matr[freq.band,4]<-mean(spec.result$phase[ceiling(freq.low[freq.band]*DataLength):ceiling(freq.high[freq.band]*DataLength)])
   }
   return(coh.matr)
 }

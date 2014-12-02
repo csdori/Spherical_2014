@@ -13,7 +13,7 @@ ClusterAverage<-function(FirstSpikeOnly="no",state.wanted=3){
   start<-1
   #ABLAK<-c(0.02,0.004)
   ##idoskal<-2 #itt alapból for ciklus van.. de hát...
-  idoskal<-2 #itt alapból for ciklus van.. de hát...
+ 
   ablak<-ABLAK[idoskal]   #az ábrák, számolások időablakának hossza
   felablak<-ablak/2*mintf #adatpontokban az időablak hosszának fele
   
