@@ -1,5 +1,55 @@
 #beolvassi paraméterek
 
+#Hol van az adat?
+fajlnev<-'p3d6.6whisker.dat'
+#fajlnev<-'p3d6.6.dat'
+#fajlnev2<-'p3d6.6whisker'  ##used when using Acsadi's own .clu and .res files
+
+#whics machine do I use:
+#otthon
+WhereamI<-"otthon" #"kfki" #'otthon' #kfki
+
+
+# Up_down stat, first spike
+FirstSpikeOnly<- "yes" #no
+state.wanted<-0 #"Up"=1, "Down"=0, "Together"=3
+
+#Do you want to calculate the coherence
+CalcCoh<-"yes" # "yes" #"No"
+#Do you want to run the clustering on a specific data?
+DoClustering<-"Yes" #Yes"#'Yes' #No
+
+#Name of Simulation
+NameofSimulation<-paste(fajlnev,"_ver3",sep="")
+
+
+if (WhereamI=='otthon'){
+  parent<-'/media/BA0ED4600ED416EB/agy/adat_acsadi/sil20_erdekes'
+  forras1<-'/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/'
+  mentes<-paste("/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/",NameofSimulation,sep="")
+  setwd('/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/')
+} 
+if (WhereamI=='kfki'){
+  parent<-'/home/csdori/sil20_erdekes'
+  mentes<-paste("/home/csdori/Spherical_sCSD_2014/Spherical_2014/",NameofSimulation,sep="")
+  forras1<-"/home/csdori/Spherical_sCSD_2014/Spherical_2014/"
+  
+}
+
+
+if (WhereamI=='Jozsikfki'){
+  parent<-"/home/jalics/sil20_erdekes"
+  forras1<-"/home/jalics/sCSD_git" 
+  mentes<-paste("/home/jalics/ACSADI_elem_09",NameofSimulation,sep="")
+  setwd("/home/jalics/sCSD_git")  ## on tauri: Working directory for loading R files
+} 
+
+if(file.exists(mentes)==FALSE) dir.create(mentes)
+
+
+################################################
+#####################################x
+##############################x
 
 #
 bm<-20 #betűméret az ábrákon

@@ -1,4 +1,18 @@
+
+
+
+
 #SpikeSorting(fajlnev)
+detekt<-function(x){
+  #ave<-mean(x,na.rm=TRUE)
+  ave<-0.5*mean(x,na.rm=TRUE)
+  hataratlepes<-seq(along=x)[x >= ave]
+  return(hataratlepes)
+}
+
+
+
+
 
 SpikeSorting<-function(fajlnev){
 library("signal")
@@ -19,12 +33,12 @@ NyqFreq<-mintf/2
 ## bandpass filter lower and upper frequency limits
 #for up&down
 #gamma
-honnan.gamma<-30/NyqFreq #alső határ 
+honnan.gamma<-20/NyqFreq #alső határ #30
 meddig.gamma<-100/NyqFreq #felső határ 
 
 #MUA
-honnan.mua<-300/NyqFreq
-meddig.mua<-3000/NyqFreq
+honnan.mua<-500/NyqFreq #300
+meddig.mua<-5000/NyqFreq #3000
 
 setwd(mentes)  ## set working directory
 dirname<-paste(fajlnev,"_",start,'_','sec_est',sep='')  ## name a new directory
@@ -45,84 +59,85 @@ spikes1<-vector("list",cs)
 a<-numeric()  ## creates numeric variable (vector)
 ##########################################
 for(q in 1:x){
-
-adat<-numeric()
-adat.filt.gamma<-numeric()
-adat.filt.mua<-numeric()
-
-#if(((x-1)dt+start)== ) ##ltp időszaka  
-
-
-seek(fid,where=((q-1)*cs*mintf*dt+start*cs*mintf)*2,origin="start",rw="read",)
-
-#a spike a teljes időszak közepén van 
-
-adat<-readBin(fid, what='integer', size=2, n=cs*mintf*dt,endian="little",signed="TRUE")
-adat<-matrix(adat,nrow=cs)
-adat<-adat[csat.rend,]
-
-#Butterworth filter
-
-
-cat("defining filtering frequencies")
-filter.gamma<-butter(1, c(honnan.gamma, meddig.gamma), type = "pass")
-filter.mua<-butter(1, c(honnan.mua, meddig.mua), type = "pass")
-#filter.gamma<-cheby1(5,3, W=c(honnan.gamma, meddig.gamma), type = "pass")
-#filter.mua<-butter(5,3, W=c(honnan.mua, meddig.mua), type = "pass")
-freqz(filter.gamma)
-adat.filt.gamma<-t(apply(adat,1, function(x) filtfilt(filter.gamma,x) ))
-adat.filt.mua<-t(apply(adat,1, function(x) filtfilt(filter.mua,x)))
-
-matplot(t(adat.filt.gamma[1:50,1:9000]),t="l")
-
-##### Spike detection
-########################
-##########################
-#küszöb meghatározása
-thres<-numeric(cs)
-thres<-apply(adat.filt.mua,1,sd)*(-2)
-#thres<-rep(-170,cs)
-#################  SPIKEDETEKTÁLÁS   #####################
-cat('Spike detection')
-
-
-#ez az eltolás a kezdőpont plusz az x-szeri cucc miatt van
-plus<-(q-1)*dt*mintf+start*mintf
-
-
-#for(ch in 2:(cs-1)){
-for(sz in 2:(csathossz-1)){
-ch<-csatorna[sz]
-wow<-numeric() #mikor átlépi a küszöböt
-
-felablak<-ablak/2*mintf
-
-for(i in felablak:(dt*mintf-felablak)){
-if(adat.filt.mua[ch,i]<=thres[ch] && adat.filt.mua[ch,i-1]>thres[ch]) 
-wow<-c(wow,i+plus)
-
-}
-if(length(wow)!=0){
-#spike-ok kiírása
-for(l in 1:length(wow)){
-a<-adat.filt.mua[(ch-1):(ch+1),(wow[l]-plus-elott):(wow[l]-plus+utan)]
-
-if(q==1 && l==1) spikes1[[ch]]<-a
-if (q!=1 || l!=1) spikes1[[ch]]<-matrix(c(spikes1[[ch]],a),nrow=3)
-}
-wowtime1[[ch]]<-c(wowtime1[[ch]],wow/mintf)
-} #if 
-
-wowtime[[ch]]<-wowtime1[[ch]]
-spikes[[ch]]<-spikes1[[ch]]
-
-
-cat(ch)
-}#ch
-
-#plot(adat[11,(wow[12]-felablak+1):(wow[12]+felablak)],t='l')
-
-
+  
+  adat<-numeric()
+  adat.filt.gamma<-numeric()
+  adat.filt.mua<-numeric()
+  
+  #if(((x-1)dt+start)== ) ##ltp időszaka  
+  
+  
+  seek(fid,where=((q-1)*cs*mintf*dt+start*cs*mintf)*2,origin="start",rw="read",)
+  
+  #a spike a teljes időszak közepén van 
+  
+  adat<-readBin(fid, what='integer', size=2, n=cs*mintf*dt,endian="little",signed="TRUE")
+  adat<-matrix(adat,nrow=cs)
+  adat<-adat[csat.rend,]
+  
+  #Butterworth filter
+  
+  
+  cat("defining filtering frequencies")
+  filter.gamma<-butter(1, c(honnan.gamma, meddig.gamma), type = "pass")
+  filter.mua<-butter(1, c(honnan.mua, meddig.mua), type = "pass")
+  #filter.gamma<-cheby1(5,3, W=c(honnan.gamma, meddig.gamma), type = "pass")
+  #filter.mua<-butter(5,3, W=c(honnan.mua, meddig.mua), type = "pass")
+  freqz(filter.gamma)
+  adat.filt.gamma<-t(apply(adat,1, function(x) filtfilt(filter.gamma,x) ))
+  adat.filt.mua<-t(apply(adat,1, function(x) filtfilt(filter.mua,x)))
+  
+  #we should look for the up and down states on the sum of these filtered signals
+  
+  matplot(t(adat.filt.gamma[1:50,1:9000]),t="l")
+  
+  ##### Spike detection
+  ########################
+  ##########################
+  #küszöb meghatározása
+  thres<-numeric(cs)
+  thres<-apply(adat.filt.mua,1,sd)*(-1.2)
+  #thres<-rep(-170,cs)
+  #################  SPIKEDETEKTÁLÁS   #####################
+  cat('Spike detection')
+  
+  
+  #ez az eltolás a kezdőpont plusz az x-szeri cucc miatt van
+  plus<-(q-1)*dt*mintf+start*mintf
+  
+  
+  #for(ch in 2:(cs-1)){
+  for(sz in 2:(csathossz-1)){
+    ch<-csatorna[sz]
+    wow<-numeric() #mikor átlépi a küszöböt
+    
+    felablak<-ablak/2*mintf
+    
+    for(i in felablak:(dt*mintf-felablak)){
+      if(adat.filt.mua[ch,i]<=thres[ch] && adat.filt.mua[ch,i-1]>thres[ch]) 
+        wow<-c(wow,i+plus)
+      
+    }
+    if(length(wow)!=0){
+      #spike-ok kiírása
+      for(l in 1:length(wow)){
+        a<-adat.filt.mua[(ch-1):(ch+1),(wow[l]-plus-elott):(wow[l]-plus+utan)]
+        
+        if(q==1 && l==1) spikes1[[ch]]<-a
+        if (q!=1 || l!=1) spikes1[[ch]]<-matrix(c(spikes1[[ch]],a),nrow=3)
+      }
+      wowtime1[[ch]]<-c(wowtime1[[ch]],wow/mintf)
+    } #if 
+    
+    wowtime[[ch]]<-wowtime1[[ch]]
+    spikes[[ch]]<-spikes1[[ch]]
+    
+    
+    cat(ch)
+  }#ch
+  
+  #plot(adat[11,(wow[12]-felablak+1):(wow[12]+felablak)],t='l')
+  
 } #q
 
 ##############
@@ -136,197 +151,177 @@ cat(ch)
 detectState<-"yes" #"no" #"yes"
 if (detectState=="yes"){
 
+  source(paste(forras1,"/UpDownDetect.R",sep=""))
 #   Gamma RMS 50 egysgnyi mozgóátlag
 #melyik csatorna cuccait ábrázoljuk??
 #csat<-8
 
 
 rmsszamol<-function(adatsor){
-  hossz<-50*adatsec #hány ms-ra simítunk
+  #hossz<-50*adatsec #hány ms-ra simítunk
+  hossz<-10
   rms<-sqrt( stats::filter(adatsor,rep(1/hossz,hossz), sides=2))
   return(rms)
 }
-
-
-adat.gamma.rms<-t(apply(adat.filt.gamma^2,1,rmsszamol))
-adat.mua.rms<-t(apply(adat.filt.mua^2,1,rmsszamol))
 
 
 #hist(adat.rms[1,],breaks=100)
 #hist(adat.rms[2,],breaks=100)
 #plot(adat.rms[1,],t='l')
 #function for detecting up or down state
-detekt<-function(x){
-  #ave<-mean(x,na.rm=TRUE)
-  ave<-1*mean(x,na.rm=TRUE)
-  hataratlepes<-seq(along=x)[x >= ave]
-  return(hataratlepes)
-}
 
-updown.list<-vector("list",32)
-updown.mua.list<-vector("list",32)
-for(csat in 1:32){
-  cat(csat)
-  
-  allapot<-c(rep(0,dt*mintf))
-  allapot.mua<-c(rep(0,dt*mintf))
-  
-  hol<-detekt(adat.gamma.rms[csat,])
-  hol.mua<-detekt(adat.mua.rms[csat,])
-  allapot[hol]<-1
-  allapot.mua[hol.mua]<-1
-  #Which spike is in up state
-  updown<-c(rep(0,length(wowtime1[[csat]])))
-  updown.mua<-c(rep(0,length(wowtime1[[csat]])))
-  updown[which(is.element(wowtime1[[csat]]*mintf,hol)==TRUE)]<-1
-  updown.mua[which(is.element(wowtime1[[csat]]*mintf,hol.mua)==TRUE)]<-1
-  
-  updown.list[[csat]]<-updown
-  updown.mua.list[[csat]]<-updown.mua
-  #mitCsat<-17
-  #plot(adat.filt.gamma[mitCsat,1:100000],t='l')
-  #lines(adat.gamma.rms[mitCsat,1:100000],col='BLUE')
-  #lines(allapot[1:100000]*500,col='RED')
-  
-  #plot(adat.filt.mua[mitCsat,1:10000],t='l')
-  #lines(adat.mua.rms[mitCsat,1:10000],col='BLUE')
-  #lines(allapot.mua[1:10000]*200,col='GREEN')
-  #ez csak az adorr csatornára vonatkozik
-  fel<-numeric()
-  le<-numeric()
-  for(i in 2:(dt*mintf)){
-    if(allapot.mua[i-1]==0 && allapot.mua[i]==1){
-      fel<-c(fel,i+start*mintf)
+
+adat.gamma.rms<-t(apply(adat.filt.gamma^2,1,rmsszamol))
+adat.mua.rms<-t(apply(adat.filt.mua^2,1,rmsszamol))
+#Calculate the mean for the channels in the certain areas.
+adat.gamma.rms.sum.s<-colMeans(adat.gamma.rms[1:16,])
+adat.gamma.rms.sum.v<-colMeans(adat.gamma.rms[17:32,])
+adat.mua.rms.sum.s<-colMeans(adat.mua.rms[1:16,])
+adat.mua.rms.sum.v<-colMeans(adat.mua.rms[17:32,])
+
+
+#For the sensory motor cortex
+#felMua.ido,leMua.ido,felGamma.ido,leGamma.ido
+SUD<-UpDownDetect(adat.mua.rms.sum.s, adat.gamma.rms.sum.s)
+#For the visual cortex
+VUD<-UpDownDetect(adat.mua.rms.sum.v,adat.gamma.rms.sum.v)
+
+nev<-"SensoryUpMua"
+write.table(SUD$felMua.ido, nev)
+nev<-"SensoryDownMua"
+write.table(SUD$leMua.ido, nev)
+nev<-"SensoryUpGamma"
+write.table(SUD$felGamma.ido, nev)
+nev<-"SensoryDownGamma"
+write.table(SUD$leGamma.ido, nev)
+
+nev<-"VisualUpMua"
+write.table(VUD$felMua.ido, nev)
+nev<-"VisualDownMua"
+write.table(VUD$leMua.ido, nev)
+nev<-"VisualUpGamma"
+write.table(VUD$felGamma.ido, nev)
+nev<-"VisualDownGamma"
+write.table(VUD$leGamma.ido, nev)
+
+cat("Calculation of Up and Down States - Overall.... Ready!!!","\n")
+
+
+#########################
+ForAllChannels<-'Yes'
+if(ForAllChannels=='Yes'){
+  updown.list<-vector("list",32)
+  updown.mua.list<-vector("list",32)
+  for(csat in 1:32){
+    cat(csat)
+    
+    allapot<-c(rep(0,dt*mintf))
+    allapot.mua<-c(rep(0,dt*mintf))
+    
+    hol<-detekt(adat.gamma.rms[csat,])
+    hol.mua<-detekt(adat.mua.rms[csat,])
+    allapot[hol]<-1
+    allapot.mua[hol.mua]<-1
+    #Which spike is in up state
+    updown<-c(rep(0,length(wowtime1[[csat]])))
+    updown.mua<-c(rep(0,length(wowtime1[[csat]])))
+    updown[which(is.element(wowtime1[[csat]]*mintf,hol)==TRUE)]<-1
+    updown.mua[which(is.element(wowtime1[[csat]]*mintf,hol.mua)==TRUE)]<-1
+    
+    updown.list[[csat]]<-updown
+    updown.mua.list[[csat]]<-updown.mua
+    #mitCsat<-17
+    #plot(adat.filt.gamma[mitCsat,1:100000],t='l')
+    #lines(adat.gamma.rms[mitCsat,1:100000],col='BLUE')
+    #lines(allapot[1:100000]*500,col='RED')
+    
+    #plot(adat.filt.mua[mitCsat,1:10000],t='l')
+    #lines(adat.mua.rms[mitCsat,1:10000],col='BLUE')
+    #lines(allapot.mua[1:10000]*200,col='GREEN')
+    #ez csak az adorr csatornára vonatkozik
+    fel<-numeric()
+    le<-numeric()
+    for(i in 2:(dt*mintf)){
+      if(allapot.mua[i-1]==0 && allapot.mua[i]==1){
+        fel<-c(fel,i+start*mintf)
+      }
+      if(allapot.mua[i-1]==1 && allapot.mua[i]==0){
+        le<-c(le,i+start*mintf)
+      }
     }
-    if(allapot.mua[i-1]==1 && allapot.mua[i]==0){
-      le<-c(le,i+start*mintf)
+    
+    #throwing out the detected changes in up and down states, whoch are shorter, than 50 ms
+    torol<-numeric()
+    for(i in 1:length(fel)){
+      if(abs(le[i]-fel[i])< (50*adatsec))
+        torol<-c(torol,i)
     }
+    fel<-fel[-torol]
+    le<-le[-torol]
+    fel.ido<-fel/mintf
+    le.ido<-le/mintf
+    
+    
+    
+    
+    
+    felnev<-paste('UPglobido_csat_',csat,sep='')
+    write.table(fel.ido, felnev)
+    lenev<-paste('DOWNglobido_csat_',csat,sep='')
+    write.table(le.ido, lenev)
+    
+    #fel állapot detektálása
+    #fel<-vector("list",32)
+    #le<-vector("list",32)
+    #for(i in 2:(dt*mintf)){
+    #if(allapot.mua[i-1]==0 && allapot.mua[i]==1){
+    #fel[[csat]]<-c(fel[[csat]],i+start*mintf)
+    #}
+    #if(allapot.mua[i-1]==1 && allapot.mua[i]==0){
+    #le[[csat]]<-c(le[[csat]],i+start*mintf)
+    #}
+    #}
+    #az elso ár utolsó hamis detekció...
+    
+    
+    #hol<-apply(adat.gamma.rms,1,detekt)
+    #hol2<-as.matrix(hol)
+    #allapot[hol2]<-1
+    y <- adat[csat,]
+    z <- adat.filt.gamma[csat,]
+    v<-adat.filt.mua[csat,]
+    w<-adat.gamma.rms[csat,]
+    wmua<-adat.mua.rms[csat,]
+    
+    
+    #source('SlidingPlot.R')
+    
+    
+    abranev<-paste('UD_csat_',csat,'.png',sep='')
+    #abranev<-paste('/media/BA0ED4600ED416EB/agy/sCSD_git/leiras/pics/UD2_csat_',csat,'.png',sep='')
+    
+    png(abranev, width=1600, height=800,pointsize = 30)
+    par(mfrow=c(4,1), mar=c(1.5,1,0.5,0.5) ,oma=c(0.5,1,2,0.5) )
+    cim<-paste(csat,'. csatorna',sep='')
+    
+    layout(matrix(c(1:4),4,1),widths=c(1,1,1,1),   	heights=c(2,2,2,1))
+    x<-1:(dt*mintf)
+    plot(x/adatsec,y[x],ylim=range(y),t='l', xaxt="n")
+    legend("bottomright","Nyers adat",pch=20,bg="WHITE")
+    plot(x/adatsec,z[x],t='l', col='RED', xaxt="n")
+    lines(x/adatsec,w[x], col='PURPLE',lwd=2)
+    legend("bottomright",c("gamma", "gamma RMS"),pch=20,col=c('RED','PURPLE'),bg="WHITE")
+    plot(x/adatsec,v[x],t='l', col='BLUE', xaxt="n")
+    lines(x/adatsec,wmua[x], col='PURPLE',lwd=2)
+    legend("bottomright",c("MUA","MUA RMS"),pch=20,col=c('BLUE','PURPLE'),bg="WHITE")
+    plot(x/adatsec,allapot[x],t='l',xlab='ms',col='RED',lwd=2)
+    lines(x/adatsec,allapot.mua[x],col='BLUE',lwd=2)
+    legend("bottomright",c("gamma","MUA"),col=c('RED','BLUE'),pch=20,bg="WHITE")
+    mtext(cim, NORTH<-3, line=0, adj=0.5, cex=1, outer=TRUE)
+    dev.off()
   }
   
-  #throwing out the detected changes in up and down states, whoch are shorter, than 50 ms
-  torol<-numeric()
-  for(i in 1:length(fel)){
-    if(abs(le[i]-fel[i])< (50*adatsec))
-      torol<-c(torol,i)
-  }
-  fel<-fel[-torol]
-  le<-le[-torol]
-  fel.ido<-fel/mintf
-  le.ido<-le/mintf
-  
-  
-  
-  
-  
-  felnev<-paste('UPglobido_csat_',csat,sep='')
-  write.table(fel.ido, felnev)
-  lenev<-paste('DOWNglobido_csat_',csat,sep='')
-  write.table(le.ido, lenev)
-  
-  #fel állapot detektálása
-  #fel<-vector("list",32)
-  #le<-vector("list",32)
-  #for(i in 2:(dt*mintf)){
-  #if(allapot.mua[i-1]==0 && allapot.mua[i]==1){
-  #fel[[csat]]<-c(fel[[csat]],i+start*mintf)
-  #}
-  #if(allapot.mua[i-1]==1 && allapot.mua[i]==0){
-  #le[[csat]]<-c(le[[csat]],i+start*mintf)
-  #}
-  #}
-  #az elso ár utolsó hamis detekció...
-  
-  
-  #hol<-apply(adat.gamma.rms,1,detekt)
-  #hol2<-as.matrix(hol)
-  #allapot[hol2]<-1
-  y <- adat[csat,]
-  z <- adat.filt.gamma[csat,]
-  v<-adat.filt.mua[csat,]
-  w<-adat.gamma.rms[csat,]
-  wmua<-adat.mua.rms[csat,]
-  
-  
-  #gördülős R ábra
-  legordul<-0
-  if(legordul==1){
-    
-    a<-allapot
-    tt <- tktoplevel()
-    left <- tclVar(1)
-    oldleft <- tclVar(1)
-    right <- tclVar(2000)
-    
-    f1 <- function(){
-      lleft <- as.numeric(tclvalue(left))
-      rright <- as.numeric(tclvalue(right))
-      x <- seq(lleft,rright,by=1)
-      par(mfrow=c(4,1), mar=c(1.5,1,0.5,0.5) ,oma=c(0.5,1,0.5,0.5) )
-      #layout(matrix(c(1:4),4,1),widths=c(1,1,1,1), 		heights=c(3,2,2,1))
-      plot(x/adatsec,y[x],ylim=range(y),t='l', xaxt="n")
-      plot(x/adatsec,z[x],t='l', col='RED', xaxt="n")
-      lines(x/adatsec,w[x], col='PURPLE')
-      plot(x/adatsec,v[x],t='l', col='BLUE', xaxt="n")
-      plot(x/adatsec,a[x],t='l', col='BLUE',xlab='ms')
-    }
-    
-    img <- tkrplot(tt, f1,hscale=2,vscale=1)
-    
-    f2 <- function(...){
-      ol <- as.numeric(tclvalue(oldleft))
-      tclvalue(oldleft) <- tclvalue(left)
-      r <- as.numeric(tclvalue(right))
-      tclvalue(right) <- as.character(r + as.numeric(...) - ol)
-      tkrreplot(img)
-    }
-    
-    f3 <- function(...){
-      tkrreplot(img)
-    }
-    
-    f4 <- function(...){
-      ol <- as.numeric(tclvalue(oldleft))
-      tclvalue(left) <- as.character(ol+2000)
-      tclvalue(oldleft) <- as.character(ol+2000)
-      r <- as.numeric(tclvalue(right))
-      tclvalue(right) <- as.character(r+2000)
-      tkrreplot(img)
-    }
-    
-    s1 <- tkscale(tt, command=f2, from=1, to=length(y),
-                  variable=left, orient="horiz",label='left')
-    s2 <- tkscale(tt, command=f3, from=1, to=length(y),
-                  variable=right, orient="horiz",label='right')
-    b1 <- tkbutton(tt, text='->', command=f4)
-    
-    tkpack(img,s1,s2,b1) 
-  } #legordul
-  
-  
-  abranev<-paste('UD_csat_',csat,'.png',sep='')
-  #abranev<-paste('/media/BA0ED4600ED416EB/agy/sCSD_git/leiras/pics/UD2_csat_',csat,'.png',sep='')
-  
-  png(abranev, width=1600, height=800,pointsize = 30)
-  par(mfrow=c(4,1), mar=c(1.5,1,0.5,0.5) ,oma=c(0.5,1,2,0.5) )
-  cim<-paste(csat,'. csatorna',sep='')
-  
-  layout(matrix(c(1:4),4,1),widths=c(1,1,1,1), 		heights=c(2,2,2,1))
-  x<-1:(dt*mintf)
-  plot(x/adatsec,y[x],ylim=range(y),t='l', xaxt="n")
-  legend("bottomright","Nyers adat",pch=20,bg="WHITE")
-  plot(x/adatsec,z[x],t='l', col='RED', xaxt="n")
-  lines(x/adatsec,w[x], col='PURPLE',lwd=2)
-  legend("bottomright",c("gamma", "gamma RMS"),pch=20,col=c('RED','PURPLE'),bg="WHITE")
-  plot(x/adatsec,v[x],t='l', col='BLUE', xaxt="n")
-  lines(x/adatsec,wmua[x], col='PURPLE',lwd=2)
-  legend("bottomright",c("MUA","MUA RMS"),pch=20,col=c('BLUE','PURPLE'),bg="WHITE")
-  plot(x/adatsec,allapot[x],t='l',xlab='ms',col='RED',lwd=2)
-  lines(x/adatsec,allapot.mua[x],col='BLUE',lwd=2)
-  legend("bottomright",c("gamma","MUA"),col=c('RED','BLUE'),pch=20,bg="WHITE")
-  mtext(cim, NORTH<-3, line=0, adj=0.5, cex=1, outer=TRUE)
-  dev.off()
 }
-
 
 } #up & down
 ####################  PCA   ###########################
