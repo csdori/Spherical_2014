@@ -7,7 +7,7 @@ fajlnev<-'p3d6.6whisker.dat'
 
 #whics machine do I use:
 #otthon
-WhereamI<-"otthon" #"kfki" #'otthon' #kfki
+WhereamI<-"kfki" #'otthon' #kfki
 
 
 # Up_down stat, first spike
@@ -20,7 +20,7 @@ CalcCoh<-"yes" # "yes" #"No"
 DoClustering<-"Yes" #Yes"#'Yes' #No
 
 #Name of Simulation
-NameofSimulation<-paste(fajlnev,"_ver3",sep="")
+NameofSimulation<-paste(fajlnev,"_ver4",sep="")
 
 
 if (WhereamI=='otthon'){

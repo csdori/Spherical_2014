@@ -36,9 +36,9 @@ library(class)
 
 start<-1
 
-dirname<-paste("FS",FirstSpikeOnly,"_UpD",state.wanted,"_",start,"_","sec_est",sep='')
+dirName<-paste("FS",FirstSpikeOnly,"_UpD",state.wanted,"_",start,"_","sec_est",sep='')
 
-mappa<-paste(mentes,'/',dirname,sep='')  ## Folder name used in tuskerajz.R 
+mappa<-paste(mentes,'/',dirName,sep='')  ## Folder name used in tuskerajz.R 
 dir.create(mappa)
 
 #interpoláció

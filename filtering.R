@@ -41,14 +41,14 @@ honnan.mua<-500/NyqFreq #300
 meddig.mua<-5000/NyqFreq #3000
 
 setwd(mentes)  ## set working directory
-dirname<-paste(fajlnev,"_",start,'_','sec_est',sep='')  ## name a new directory
-##dirname<-"Nov26c"
-dir.create(dirname) #csinálunk egy mappát!!!  ## create the directory
+dirname2<-paste(fajlnev,"_",start,'_','sec_est',sep='')  ## name a new directory
+
+dir.create(dirname2) #csinálunk egy mappát!!!  ## create the directory
 
 #################SZŰRÉS############################
 #szűrés paraméterei
 setwd(parent)
-#setwd(dirname) 
+
 
 #################
 wowtime<-vector("list",cs) ## create vector of length cs=65
@@ -151,7 +151,7 @@ for(q in 1:x){
 detectState<-"yes" #"no" #"yes"
 if (detectState=="yes"){
 
-  source(paste(forras1,"/UpDownDetect.R",sep=""))
+  source(paste(forras1,"UpDownDetect.R",sep=""))
 #   Gamma RMS 50 egysgnyi mozgóátlag
 #melyik csatorna cuccait ábrázoljuk??
 #csat<-8
@@ -159,7 +159,7 @@ if (detectState=="yes"){
 
 rmsszamol<-function(adatsor){
   #hossz<-50*adatsec #hány ms-ra simítunk
-  hossz<-10
+  hossz<-20*adatsec
   rms<-sqrt( stats::filter(adatsor,rep(1/hossz,hossz), sides=2))
   return(rms)
 }
