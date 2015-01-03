@@ -92,7 +92,9 @@ coherenceMatrix<-array(0,c(65,65,Freqnb))
 phaseMatrix<-array(0,c(65,65,Freqnb))
 
 for(cs1 in 1:65){
-  for (cs2 in cs1:65){
+  cat("Koh cs1", cs1,"\n")
+
+    for (cs2 in cs1:65){
     if (cs1==33 | cs2==33) next
 	CohResult<-coherence(adat[cs1,],adat[cs2,],FreqsLow,FreqsHigh)
     coherenceMatrix[cs1,cs2,]<-CohResult[,3]
@@ -115,7 +117,7 @@ image(coherenceMatrix[,,fs],col=rainbow(100),main="Coherence")
 image(phaseMatrix[,,fs],col=rainbow(100),main="Phase")
 dev.off()
 }
-remove(c(adat,coherenceMatrix,phaseMatrix,cohName,phaseName,cohphaseName,fs,dts,FreqsLow, FreqsHigh,Freqnb,cs1,cs2))
+#remove(c(adat,coherenceMatrix,phaseMatrix,cohName,phaseName,cohphaseName,fs,dts,FreqsLow, FreqsHigh,Freqnb,cs1,cs2))
 }
 ##################
 #mértékek számolása a különböző esetekben
@@ -264,7 +266,7 @@ MaxPots<-numeric()
 CellNames<-character()
 
 dmin<-1
-dmax<-150
+dmax<-200
 dstepsize<-1
 somawidth<-5
 
@@ -456,6 +458,15 @@ ch2dirac3<- legen3$ch2
 I1<-legen$I.dirac
 Ihej1<-legenhej$I.hej
 I1dirac3<-legen3$I.dirac
+A0A1dirac<-legen$A0A1dirac
+A0A1hej <- legen$A0A1hej
+
+aramname<-paste("A0A1dirac_csat",ch,"k",k,sep='')
+write.table(A0A1dirac,aramname,col.names=FALSE,row.names=FALSE) 
+
+aramname<-paste("A0A1hej_csat",ch,"k",k,sep='')
+write.table(A0A1hej,aramname,col.names=FALSE,row.names=FALSE) 
+
 
 imaxhol<-which(max(abs(I1))==abs(I1),arr.ind=TRUE)
 imaxholhej<-which(max(abs(Ihej1))==abs(Ihej1),arr.ind=TRUE)
@@ -469,6 +480,8 @@ felbontas<-legen$felbontas
 felbontashej<-legenhej$felbontas
 felbontas4<-legen4$felbontas
 el.poz<-legen$el.poz
+
+
 
 legnev<-paste("legendreRD_csat_",ch,"_k_", k,".png", sep = "")
 CellNames<-c(CellNames,legnev)
@@ -670,6 +683,8 @@ write.table(CellNames,"CellNames",col.names=FALSE,row.names=FALSE)
 DistancesMatrix<-matrix(c(DistCompDirac,DistCompHej,DistCompDirac3,DistCompHej3,DistCompDirac4,DistCompHej4,MaxPots),ncol=7)
 
 write.table(DistancesMatrix,"Distances6methods",col.names=FALSE,row.names=FALSE)
+
+
 
 #file.copy('/home/jalics/sCSD_git/sCSD_dipolJJ.R', paste(mentes,"/",dirname,"/",dirname1,sep=""))
 #file.copy('/home/jalics/sCSD_git/dipolgombJJ.R', paste(mentes,"/",dirname,"/",dirname1,sep=""))

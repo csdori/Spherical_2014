@@ -11,8 +11,8 @@ WhereamI<-"kfki" #'otthon' #kfki
 
 
 # Up_down stat, first spike
-FirstSpikeOnly<- "yes" #no
-state.wanted<-0 #"Up"=1, "Down"=0, "Together"=3
+FirstSpikeOnly<-"no" #"yes" #no
+state.wanted<-3 #"Up"=1, "Down"=0, "Together"=3
 
 #Do you want to calculate the coherence
 CalcCoh<-"yes" # "yes" #"No"
@@ -20,7 +20,7 @@ CalcCoh<-"yes" # "yes" #"No"
 DoClustering<-"Yes" #Yes"#'Yes' #No
 
 #Name of Simulation
-NameofSimulation<-paste(fajlnev,"_ver4",sep="")
+NameofSimulation<-paste(fajlnev,"_ver5",sep="")
 
 
 if (WhereamI=='otthon'){
@@ -105,3 +105,6 @@ thal<-c(34:65)  ## create vector for thalamus
 setwd(parent)
 #csatornasorrend
 csat.rend<-scan("chOrder32lin16lin16lin.txt")
+
+setwd(forras1)
+source("sCSD_dipolJJ.R")

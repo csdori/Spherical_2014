@@ -31,7 +31,7 @@ coherence<-function(series1, series2, freq.low, freq.high){
   coh.matr[,1]<-freq.low
   coh.matr[,2]<-freq.high
   for(freq.band in 1:nlength){
-    coh.matr[freq.band,3]<-mean(spec.result$coh[ceiling(freq.low[freq.band]*DataLength):ceiling(freq.high[freq.band]*DataLength])
+    coh.matr[freq.band,3]<-mean(spec.result$coh[ceiling(freq.low[freq.band]*DataLength):ceiling(freq.high[freq.band]*DataLength)])
     coh.matr[freq.band,4]<-mean(spec.result$phase[ceiling(freq.low[freq.band]*DataLength):ceiling(freq.high[freq.band]*DataLength)])
   }
   return(coh.matr)

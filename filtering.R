@@ -96,7 +96,8 @@ for(q in 1:x){
   ##########################
   #küszöb meghatározása
   thres<-numeric(cs)
-  thres<-apply(adat.filt.mua,1,sd)*(-1.2)
+  thres<-apply(adat.filt.mua,1,sd)*(-2)
+  cat("Kuszob",thres)
   #thres<-rep(-170,cs)
   #################  SPIKEDETEKTÁLÁS   #####################
   cat('Spike detection')
@@ -208,7 +209,7 @@ cat("Calculation of Up and Down States - Overall.... Ready!!!","\n")
 
 
 #########################
-ForAllChannels<-'Yes'
+ForAllChannels<-'No'
 if(ForAllChannels=='Yes'){
   updown.list<-vector("list",32)
   updown.mua.list<-vector("list",32)
@@ -395,11 +396,11 @@ lapply(klaszt.jell[[ch]], cat, "\n", file=klasztjellnamekpca, append=TRUE)
 #%klasztjellname<-paste('klasztjell_ch_',ch,sep='')
 #write.table(klaszt.jell,klasztjellname) #??
 if (ch<33){
-  mimi<-c(klaszter$classification,wowtime[[ch]],klaszt.uncertainty,updown.list[[ch]],updown.mua.list[[ch]])
+  mimi<-c(klaszter$classification,wowtime[[ch]],klaszt.uncertainty) #,updown.list[[ch]],updown.mua.list[[ch]])
   dimMimi<-length(klaszter$classification)
   #klaszterszámok és pontszám egymás mellett    
   mimi<-matrix(mimi, nrow=dimMimi, dimnames = list(c(1:dimMimi),
-                                                          c("klaszterszam", "globido","uncertainty","updown","updown.mua")))
+                                                          c("klaszterszam", "globido","uncertainty"))) #,"updown","updown.mua")))
 }
 if (ch>33){
   mimi<-c(klaszter$classification,wowtime[[ch]],klaszt.uncertainty)
