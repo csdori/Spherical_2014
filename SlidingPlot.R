@@ -1,14 +1,19 @@
 #This is a plotting tool to make matplot with different curves for each channel, like raw data and different types of filtering.
-
+library(tcltk)
+library(tkrplot)
 
 ScrollingPlot<-function(data1,data2,data3){
+ # data1<-adat[1:3,]
+  #data2<-adat.filt.slow[1:3,]
+  #data3<-adat.filt.mua[1:3,]
   dimData<-dim(data1)[1]
   #a<-allapot
   tt <- tktoplevel()
-  left <- tclVar(1/adatsec)
-  oldleft <- tclVar(1/adatsec)
+  left <- tclVar(1)
+  oldleft <- tclVar(1)
   right <- tclVar(2000)
-  
+  y<-1:dim(data1)[2]
+    
   f1 <- function(){
     lleft <- as.numeric(tclvalue(left))
     rright <- as.numeric(tclvalue(right))
@@ -54,4 +59,12 @@ ScrollingPlot<-function(data1,data2,data3){
 }
 
 
-ScrollingPlot(adat[1:3,],adat.filt.gamma[1:3,],adat.filt.mua[1:3,])
+#ScrollingPlot(adat[c(5,17,53),],adat.filt.gamma[c(5,17,53),],adat.filt.mua[c(5,17,53),])
+ScrollingPlot(adat[1:3,],adat[1:3,],adat.filt.mua[1:3,])
+ScrollingPlot(adat[1:5,],adat.filt.slow[1:5,],adat.filt.mua[1:5,])
+timewindow<-c(1:100000)
+whichCh<-110:12
+ScrollingPlot(adat[whichCh,],adat[whichCh,],adat.filt.mua[whichCh,])
+ScrollingPlot(adat[whichCh,timewindow],adat.filt.slow[whichCh,timewindow],adat.filt.slow[whichCh,timewindow]*1)
+ScrollingPlot(adat[whichCh,],adat[whichCh,],10*abs(adat.filt.mua[whichCh,]))
+

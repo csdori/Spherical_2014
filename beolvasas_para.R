@@ -7,7 +7,7 @@ fajlnev<-'p3d6.6whisker.dat'
 
 #whics machine do I use:
 #otthon
-WhereamI<-"kfki" #'otthon' #kfki
+WhereamI<-'otthon' #kfki
 
 
 # Up_down stat, first spike
@@ -20,14 +20,14 @@ CalcCoh<-"yes" # "yes" #"No"
 DoClustering<-"Yes" #Yes"#'Yes' #No
 
 #Name of Simulation
-NameofSimulation<-paste(fajlnev,"_ver5",sep="")
+NameofSimulation<-paste(fajlnev,"_ver1",sep="")
 
 
 if (WhereamI=='otthon'){
   parent<-'/media/BA0ED4600ED416EB/agy/adat_acsadi/sil20_erdekes'
   forras1<-'/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/'
-  mentes<-paste("/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/",NameofSimulation,sep="")
-  setwd('/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/')
+  mentes<-paste("/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2015/",NameofSimulation,sep="")
+  setwd('/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2015/')
 } 
 if (WhereamI=='kfki'){
   parent<-'/home/csdori/sil20_erdekes'

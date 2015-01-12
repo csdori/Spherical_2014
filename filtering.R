@@ -33,12 +33,18 @@ NyqFreq<-mintf/2
 ## bandpass filter lower and upper frequency limits
 #for up&down
 #gamma
+
+#slow
+#honnan.slow<-0.1/NyqFreq
+meddig.slow<-5/NyqFreq
+
+#gamma
 honnan.gamma<-20/NyqFreq #alső határ #30
 meddig.gamma<-100/NyqFreq #felső határ 
 
 #MUA
 honnan.mua<-500/NyqFreq #300
-meddig.mua<-5000/NyqFreq #3000
+meddig.mua<-1500/NyqFreq #3000
 
 setwd(mentes)  ## set working directory
 dirname2<-paste(fajlnev,"_",start,'_','sec_est',sep='')  ## name a new directory
@@ -63,7 +69,7 @@ for(q in 1:x){
   adat<-numeric()
   adat.filt.gamma<-numeric()
   adat.filt.mua<-numeric()
-  
+  adat.filt.slow<-numeric()
   #if(((x-1)dt+start)== ) ##ltp időszaka  
   
   
@@ -79,18 +85,23 @@ for(q in 1:x){
   
   
   cat("defining filtering frequencies")
-  filter.gamma<-butter(1, c(honnan.gamma, meddig.gamma), type = "pass")
-  filter.mua<-butter(1, c(honnan.mua, meddig.mua), type = "pass")
+  filter.slow<-butter(3,meddig.slow, type = "low")
+  filter.gamma<-butter(3, c(honnan.gamma, meddig.gamma), type = "pass")
+  filter.mua<-butter(3, c(honnan.mua, meddig.mua), type = "pass")
   #filter.gamma<-cheby1(5,3, W=c(honnan.gamma, meddig.gamma), type = "pass")
   #filter.mua<-butter(5,3, W=c(honnan.mua, meddig.mua), type = "pass")
   freqz(filter.gamma)
-  adat.filt.gamma<-t(apply(adat,1, function(x) filtfilt(filter.gamma,x) ))
+  #adat.filt.slow<-t(apply(adat,1, function(x) filtfilt(filter.slow,x) ))
+  #adat.filt.gamma<-t(apply(adat,1, function(x) filtfilt(filter.gamma,x) ))
   adat.filt.mua<-t(apply(adat,1, function(x) filtfilt(filter.mua,x)))
+  
+  #adat.filt.slow.diff1<-t(apply(adat.filt.slow, 1,diff))
   
   #we should look for the up and down states on the sum of these filtered signals
   
-  matplot(t(adat.filt.gamma[1:50,1:9000]),t="l")
-  
+  #matplot(t(adat.filt.gamma[1:50,1:9000]),t="l")
+  #matplot(t(adat.filt.mua[1:5,1:9000]),t="l")
+  # abline(h=thres[1:5])
   ##### Spike detection
   ########################
   ##########################
@@ -149,7 +160,7 @@ for(q in 1:x){
 ####################x Up and down filtering
 ####### 
 # up & down state detektálás
-detectState<-"yes" #"no" #"yes"
+detectState<-"no" #"no" #"yes"
 if (detectState=="yes"){
 
   source(paste(forras1,"UpDownDetect.R",sep=""))

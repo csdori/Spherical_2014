@@ -4,12 +4,6 @@
 #source('~/Documents/Desktop/KFKI/Thalamus/sCSD_git/sCSD_dipolJJ.R')  ## copy at R prompt to run on Desktop
 #source('/home/jalics/sCSD_git/sCSD_dipolJJ.R')  ## copy at R prompt to run on tauri or uranus
 
-#Hol van az adat?
-fajlnev<-'p3d6.6whisker.dat'
-#fajlnev<-'p3d6.6.dat'
-#fajlnev2<-'p3d6.6whisker'  ##used when using Acsadi's own .clu and .res files
-
-
 
 #adatbeolvasás, paraméterek
 #source("beolvasas_para.R")
@@ -85,8 +79,8 @@ seek(fid,where=((q-1)*cs*mintf*dts+start*cs*mintf)*2,origin="start",rw="read",)
 adat<-readBin(fid, what='integer', size=2, n=cs*mintf*dts,endian="little",signed="TRUE")
 adat<-matrix(adat,nrow=cs)
 adat<-adat[csat.rend,]
-FreqsLow<-c(1,7,20,50,200)
-FreqsHigh<-c(5,20,50,200,500)
+FreqsLow<-c(1,5,7,20,50,200,500)
+FreqsHigh<-c(5,7,20,50,200,500,1500)
 Freqnb<-length(FreqsLow)
 coherenceMatrix<-array(0,c(65,65,Freqnb))
 phaseMatrix<-array(0,c(65,65,Freqnb))
@@ -110,7 +104,7 @@ cohName<-paste("coh_",FreqsLow[fs],"_",FreqsHigh[fs],sep="")
 phaseName<-paste("phase_",FreqsLow[fs],"_",FreqsHigh[fs],sep="")
 write.table(coherenceMatrix[,,fs],cohName,col.names=FALSE,row.names=FALSE) 
 write.table(phaseMatrix[,,fs],phaseName,col.names=FALSE,row.names=FALSE)
-cohphaseName<-paste("cohphase_",FreqsLow[fs],"_",FreqsHigh[fs],"plot",sep="")
+cohphaseName<-paste("cohphase_",FreqsLow[fs],"_",FreqsHigh[fs],"plot.png",sep="")
 png(cohphaseName,width=1000,height=500)
 par(mfrow=c(1,2))
 image(coherenceMatrix[,,fs],col=rainbow(100),main="Coherence")
@@ -241,7 +235,7 @@ try(source(paste(forras1,"isi.R",sep="")))
 #transzfermátrix
 #konst<-1  #valójában 1/(4*pi*epsilon*sigma)
 
-
+break
 
 ## Traditional CSD method
 ITRAD<-array(0,c(jel,2*felablak))
