@@ -19,10 +19,10 @@ if(length(isi) <3) break
   #if(length(isi2)>2){
   isiname<-paste("isi_csat_",ch,"_k_", k,".png", sep = "")
   png(pointsize=bm,filename = isiname)
-  par(mfrow=c(1,2))
+  
   cim<-paste('A ',ch,'. csatorna ',k,' . klaszterének ISI hisztogrammja', sep = "")
   #hist(isi2,breaks=c(seq(0,max(isi2),0.5),max(isi2)),main=cim,xlab='idő (ms)', ylab=('tüskék száma'),freq=TRUE,col='gray')
-  hist(isi,breaks=c(seq(0,max(isi),5),max(isi)),col='gray',xlim=c(0,50),xlab='isi (ms)')
+  hist(isi,breaks=c(seq(0,max(isi),5),max(isi)),col='gray',xlab='isi (ms)')
  
   #összes tüske db:
   ossz.tuske<-paste("összes tüske száma: ",length(isi)+1," db",sep=""  )
@@ -35,7 +35,7 @@ if(length(isi) <3) break
   
   #2ms/10ms
   arany.tuske<-paste("2 és 10 ms-on belüli tüskék aránya: ",round(ms2/ms10,digits=3),sep="")
-  plot(c(0, 1), c(0, 1), ann = F, bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
+ # plot(c(0, 1), c(0, 1), ann = F, bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
   legend("topright",c(ossz.tuske,ms2.tuske,ms10.tuske,arany.tuske),lty=0,cex=0.6)
 
   dev.off()

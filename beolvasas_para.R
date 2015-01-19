@@ -1,7 +1,7 @@
 #beolvassi paraméterek
 
 #Hol van az adat?
-fajlnev<-'p3d6.6whisker.dat'
+fajlnev<-'p2d6.6.dat'
 #fajlnev<-'p3d6.6.dat'
 #fajlnev2<-'p3d6.6whisker'  ##used when using Acsadi's own .clu and .res files
 
@@ -25,9 +25,10 @@ NameofSimulation<-paste(fajlnev,"_ver1",sep="")
 
 if (WhereamI=='otthon'){
   parent<-'/media/BA0ED4600ED416EB/agy/adat_acsadi/sil20_erdekes'
-  forras1<-'/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2014/'
+  forras1<-'/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2015/'
   mentes<-paste("/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2015/",NameofSimulation,sep="")
   setwd('/media/BA0ED4600ED416EB/agy/Spherical_sCSD_2015/')
+  
 } 
 if (WhereamI=='kfki'){
   parent<-'/home/csdori/sil20_erdekes'

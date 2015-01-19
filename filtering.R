@@ -5,8 +5,16 @@
 #SpikeSorting(fajlnev)
 detekt<-function(x){
   #ave<-mean(x,na.rm=TRUE)
-  ave<-0.5*mean(x,na.rm=TRUE)
+  ave<-mean(x,na.rm=TRUE)
+  #histAmpl<-hist(adat.mua.rms[11,],plot=F, breaks=100)
+  
+  #histAmpl$counts<-log(histAmpl$counts)
+  #plot(histAmpl,ylim=c(0,10000))
+  #plot(histAmpl$density,t='l')
   hataratlepes<-seq(along=x)[x >= ave]
+  #fitting 2 gaussians on the distributions
+  
+  
   return(hataratlepes)
 }
 
@@ -91,8 +99,8 @@ for(q in 1:x){
   #filter.gamma<-cheby1(5,3, W=c(honnan.gamma, meddig.gamma), type = "pass")
   #filter.mua<-butter(5,3, W=c(honnan.mua, meddig.mua), type = "pass")
   freqz(filter.gamma)
-  #adat.filt.slow<-t(apply(adat,1, function(x) filtfilt(filter.slow,x) ))
-  #adat.filt.gamma<-t(apply(adat,1, function(x) filtfilt(filter.gamma,x) ))
+  adat.filt.slow<-t(apply(adat,1, function(x) filtfilt(filter.slow,x) ))
+  adat.filt.gamma<-t(apply(adat,1, function(x) filtfilt(filter.gamma,x) ))
   adat.filt.mua<-t(apply(adat,1, function(x) filtfilt(filter.mua,x)))
   
   #adat.filt.slow.diff1<-t(apply(adat.filt.slow, 1,diff))
@@ -160,7 +168,7 @@ for(q in 1:x){
 ####################x Up and down filtering
 ####### 
 # up & down state detektálás
-detectState<-"no" #"no" #"yes"
+detectState<-"yes" #"no" #"yes"
 if (detectState=="yes"){
 
   source(paste(forras1,"UpDownDetect.R",sep=""))
@@ -171,7 +179,7 @@ if (detectState=="yes"){
 
 rmsszamol<-function(adatsor){
   #hossz<-50*adatsec #hány ms-ra simítunk
-  hossz<-20*adatsec
+  hossz<-50*adatsec
   rms<-sqrt( stats::filter(adatsor,rep(1/hossz,hossz), sides=2))
   return(rms)
 }
@@ -186,17 +194,19 @@ rmsszamol<-function(adatsor){
 adat.gamma.rms<-t(apply(adat.filt.gamma^2,1,rmsszamol))
 adat.mua.rms<-t(apply(adat.filt.mua^2,1,rmsszamol))
 #Calculate the mean for the channels in the certain areas.
-adat.gamma.rms.sum.s<-colMeans(adat.gamma.rms[1:16,])
-adat.gamma.rms.sum.v<-colMeans(adat.gamma.rms[17:32,])
-adat.mua.rms.sum.s<-colMeans(adat.mua.rms[1:16,])
-adat.mua.rms.sum.v<-colMeans(adat.mua.rms[17:32,])
-
+#adat.gamma.rms.sum.s<-colMeans(adat.gamma.rms[1:16,])
+#adat.gamma.rms.sum.v<-colMeans(adat.gamma.rms[17:32,])
+#adat.mua.rms.sum.s<-colMeans(adat.mua.rms[1:16,])
+#adat.mua.rms.sum.v<-colMeans(adat.mua.rms[17:32,])
+WhichS<-which.max(apply(adat.mua.rms,1,sd,na.rm=TRUE)[1:16])
+WhichV<-which.max(apply(adat.mua.rms,1,sd,na.rm=TRUE)[17:32])+16
 
 #For the sensory motor cortex
 #felMua.ido,leMua.ido,felGamma.ido,leGamma.ido
-SUD<-UpDownDetect(adat.mua.rms.sum.s, adat.gamma.rms.sum.s)
+SUD<-UpDownDetect(adat.mua.rms[WhichS,], adat.gamma.rms[WhichS,])
 #For the visual cortex
-VUD<-UpDownDetect(adat.mua.rms.sum.v,adat.gamma.rms.sum.v)
+#VUD<-UpDownDetect(adat.mua.rms.sum.v,adat.gamma.rms.sum.v)
+VUD<-UpDownDetect(adat.mua.rms[WhichV,], adat.gamma.rms[WhichV,])
 
 nev<-"SensoryUpMua"
 write.table(SUD$felMua.ido, nev)
@@ -215,6 +225,38 @@ nev<-"VisualUpGamma"
 write.table(VUD$felGamma.ido, nev)
 nev<-"VisualDownGamma"
 write.table(VUD$leGamma.ido, nev)
+
+#Lets check on each thalamical and cortical channel, thet when is up and when is down state...
+#this just works, if we start with down state
+lengthVup<-min(length(VUD$felMua.ido),length(VUD$leMua.ido))
+lengthSup<-min(length(SUD$felMua.ido),length(SUD$leMua.ido))
+UpDownStatesS<-vector("list",cs)
+UpDownStatesV<-vector("list",cs)
+
+for (csat in 1:cs){
+  if (csat==33) next
+  SUP<-numeric()
+    for(sup in 1:lengthSup){
+      SUP<-c(SUP, intersect(which(wowtime1[[csat]] <SUD$leMua.ido[sup] ), which(wowtime1[[csat]]  > SUD$felMua.ido[sup] )))
+      
+    }
+  
+  VUP<-numeric()
+  for(vup in 1:lengthVup){
+    VUP<-c(VUP, intersect(which(wowtime1[[csat]] <VUD$leMua.ido[vup] ), which(wowtime1[[csat]]  > VUD$felMua.ido[vup] )))
+    
+  }
+  
+  statedeters<-rep(0,length(wowtime1[[csat]]))
+  statedeters[SUP]<-1
+  UpDownStatesS[[csat]]<-statedeters
+  
+  statedeterv<-rep(0,length(wowtime1[[csat]]))
+  statedeterv[VUP]<-1
+  UpDownStatesV[[csat]]<-statedeterv
+  
+}
+
 
 cat("Calculation of Up and Down States - Overall.... Ready!!!","\n")
 
@@ -407,18 +449,19 @@ lapply(klaszt.jell[[ch]], cat, "\n", file=klasztjellnamekpca, append=TRUE)
 #%klasztjellname<-paste('klasztjell_ch_',ch,sep='')
 #write.table(klaszt.jell,klasztjellname) #??
 if (ch<33){
-  mimi<-c(klaszter$classification,wowtime[[ch]],klaszt.uncertainty) #,updown.list[[ch]],updown.mua.list[[ch]])
+  mimi<-c(klaszter$classification,wowtime[[ch]],klaszt.uncertainty,UpDownStatesS[[ch]],UpDownStatesV[[ch]]) #,updown.list[[ch]],updown.mua.list[[ch]])
   dimMimi<-length(klaszter$classification)
   #klaszterszámok és pontszám egymás mellett    
   mimi<-matrix(mimi, nrow=dimMimi, dimnames = list(c(1:dimMimi),
-                                                          c("klaszterszam", "globido","uncertainty"))) #,"updown","updown.mua")))
+                                                          c("klaszterszam", "globido","uncertainty","SUP","VUP"))) #,"updown","updown.mua")))
 }
 if (ch>33){
-  mimi<-c(klaszter$classification,wowtime[[ch]],klaszt.uncertainty)
+  dimMimi<-length(klaszter$classification)
+  mimi<-c(klaszter$classification,wowtime[[ch]],klaszt.uncertainty,UpDownStatesS[[ch]],UpDownStatesV[[ch]])
   
   #klaszterszámok és pontszám egymás mellett    
-  mimi<-matrix(mimi, nrow=length(mimi)/3, dimnames = list(c(1:(length(mimi)/3)),
-                                                          c("klaszterszam", "globido","uncertainty")))
+  mimi<-matrix(mimi, nrow=dimMimi, dimnames = list(c(1:dimMimi),
+                                                          c("klaszterszam", "globido","uncertainty", "SUP","VUP")))
 }
 
 

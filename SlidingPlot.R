@@ -23,6 +23,9 @@ ScrollingPlot<-function(data1,data2,data3){
     for(pl in 1:dimData){
       #cat("A dimenzio:" , dim(t(rbind(data1[pl,],data2[pl,],data3[pl,]))))
       matplot( x,t(rbind(data1[pl,lleft:rright],data2[pl,lleft:rright],data3[pl,lleft:rright])),t='l')
+      abline(h=mean(data1,na.rm=TRUE),lwd=1.2)
+      abline(h=mean(data2,na.rm=TRUE),col="RED", lwd=1.2)
+      abline(h=mean(data3,na.rm=TRUE),col="GREEN",lwd=1.2)
     }
   }
   
@@ -63,8 +66,10 @@ ScrollingPlot<-function(data1,data2,data3){
 ScrollingPlot(adat[1:3,],adat[1:3,],adat.filt.mua[1:3,])
 ScrollingPlot(adat[1:5,],adat.filt.slow[1:5,],adat.filt.mua[1:5,])
 timewindow<-c(1:100000)
-whichCh<-110:12
+whichCh<-10:12
 ScrollingPlot(adat[whichCh,],adat[whichCh,],adat.filt.mua[whichCh,])
 ScrollingPlot(adat[whichCh,timewindow],adat.filt.slow[whichCh,timewindow],adat.filt.slow[whichCh,timewindow]*1)
-ScrollingPlot(adat[whichCh,],adat[whichCh,],10*abs(adat.filt.mua[whichCh,]))
+ScrollingPlot(adat[whichCh,],adat.filt.slow[whichCh,],10*abs(adat.filt.mua[whichCh,]))
+ScrollingPlot(adat[whichCh,],adat.filt.mua[whichCh,]*10,adat.gamma.rms[whichCh,]*30)
 
+# 

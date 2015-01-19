@@ -33,14 +33,16 @@ UpDownDetect<-function(dataMua,dataGamma){
     }
   }
   
+  
+  
   #throwing out the detected changes in up and down states, whoch are shorter, than 50 ms
   torol<-numeric()
   for(i in 1:length(felMua)){
     if(abs(leMua[i]-felMua[i])< (0.050*mintf))
       torol<-c(torol,i)
   }
-  #felMua<-felMua[-torol]
-  #leMua<-leMua[-torol]
+  felMua<-felMua[-torol]
+  leMua<-leMua[-torol]
   felMua.ido<-felMua/mintf
   leMua.ido<-leMua/mintf
   
@@ -50,12 +52,12 @@ UpDownDetect<-function(dataMua,dataGamma){
     if(abs(leGamma[i]-felGamma[i])< (0.050*mintf))
       torol<-c(torol,i)
   }
-  #felGamma<-felGamma[-torol]
-  #leGamma<-leGamma[-torol]
+  felGamma<-felGamma[-torol]
+  leGamma<-leGamma[-torol]
   felGamma.ido<-felGamma/mintf
   leGamma.ido<-leGamma/mintf
   
-  return(list(felMua.ido,leMua.ido,felGamma.ido,leGamma.ido))
+  return(list(felMua.ido=felMua.ido,leMua.ido=leMua.ido,felGamma.ido=felGamma.ido,leGamma.ido=leGamma.ido))
   
 }
 

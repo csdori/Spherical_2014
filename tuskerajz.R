@@ -122,12 +122,13 @@ ClusterAverage<-function(FirstSpikeOnly="no",state.wanted=3){
           negyzet<-negyzet+(atlag-rowMeans(data.matrix(atlag)))*(atlag-rowMeans(data.matrix(atlag)))
           
           ##if(db==1){ plot(c(1:length(data)/adatsec),data-mean(data),t='l',ylim=c(-1000,500),xlab='idő', ylab='potenciál (uV)', main='Klaszterátlag')
-          if(db==2){ plot(c(1:length(data)/adatsec),data-mean(data),t='l',ylim=c(-1000,500),xlab='ido', ylab='potenciál (uV)', main='Klaszterátlag')
+          
+          if(db==2){ plot(c((1:length(data)-length(data)/2)/adatsec),data-mean(data),t='l', xlim=c(-1.5,1.5),ylim=c(-2000,1000),xlab='ido', ylab='potenciál (uV)', main='Klaszterátlag')
                      #lines(c(1:length(data)/adatsec,al-mean(al),col='BLUE')
                      #lines(c(1:(felablak*2)),af-mean(af),col='RED')
           }
           
-          if(db!=1 && db<100){lines(c(1:length(data)/adatsec),data-mean(data))
+          if(db!=1 && db<100){lines(c((1:length(data)-length(data)/2)/adatsec),data-mean(data))
                               #lines(c(1:(felablak*2)),al-mean(al),col='BLUE')
                               #lines(c(1:(felablak*2)),af-mean(af),col='RED')
           }

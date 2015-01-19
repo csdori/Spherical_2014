@@ -71,14 +71,19 @@ cat("Parameterek beolvasva \n")
 
 ##Calculation of coherence
 if(CalcCoh=="yes"){
-setwd(mentes)
+
 cat("Calculation of coherence")
 q<-1
 dts<-10 #data length to read in  s
+
 seek(fid,where=((q-1)*cs*mintf*dts+start*cs*mintf)*2,origin="start",rw="read",)
 adat<-readBin(fid, what='integer', size=2, n=cs*mintf*dts,endian="little",signed="TRUE")
 adat<-matrix(adat,nrow=cs)
 adat<-adat[csat.rend,]
+#adat[1:16,]<-adat[1:16,]-colMeans(adat[1:16,])
+#adat[17:32,]<-adat[17:32,]-colMeans(adat[17:32,])
+#adat[34:65,]<-adat[34:65,]-colMeans(adat[34:65,])
+
 FreqsLow<-c(1,5,7,20,50,200,500)
 FreqsHigh<-c(5,7,20,50,200,500,1500)
 Freqnb<-length(FreqsLow)
@@ -96,6 +101,7 @@ for(cs1 in 1:65){
     }
 }
 
+setwd(mentes)
 for(fs in 1:Freqnb){
 coherenceMatrix[,,fs]<-coherenceMatrix[,,fs]+t(coherenceMatrix[,,fs])
 diag(coherenceMatrix[,,fs])<-1
@@ -234,8 +240,6 @@ try(source(paste(forras1,"isi.R",sep="")))
 
 #transzfermátrix
 #konst<-1  #valójában 1/(4*pi*epsilon*sigma)
-
-break
 
 ## Traditional CSD method
 ITRAD<-array(0,c(jel,2*felablak))
