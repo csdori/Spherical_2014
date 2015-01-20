@@ -113,8 +113,9 @@ write.table(phaseMatrix[,,fs],phaseName,col.names=FALSE,row.names=FALSE)
 cohphaseName<-paste("cohphase_",FreqsLow[fs],"_",FreqsHigh[fs],"plot.png",sep="")
 png(cohphaseName,width=1000,height=500)
 par(mfrow=c(1,2))
-image(coherenceMatrix[,,fs],col=rainbow(100),main="Coherence")
-image(phaseMatrix[,,fs],col=rainbow(100),main="Phase")
+#-function(y.skala,mit,   xfel, yfel,mitmain){
+nemlinplot(c(1:65),coherenceMatrix[,,fs],"Channels","Channels",paste("Coherence ",FreqsLow[fs]," ",FreqsHigh[fs]," Hz",sep="" ))
+nemlinplot(c(1:65),phaseMatrix[,,fs],"Channels","Channels", paste("Coherence ",FreqsLow[fs]," ",FreqsHigh[fs]," Hz",sep="" ))
 dev.off()
 }
 #remove(c(adat,coherenceMatrix,phaseMatrix,cohName,phaseName,cohphaseName,fs,dts,FreqsLow, FreqsHigh,Freqnb,cs1,cs2))

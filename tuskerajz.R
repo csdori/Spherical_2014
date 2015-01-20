@@ -1,7 +1,8 @@
 
 
 #cat("Only first spike of bursts taken into account")
-
+#ch<-40
+#k<-2
 
 ClusterAverage<-function(FirstSpikeOnly="no",state.wanted=3){
   
@@ -10,6 +11,9 @@ ClusterAverage<-function(FirstSpikeOnly="no",state.wanted=3){
   
   MiMiName<-paste(mentes,"/MIMI_ch",ch,sep='')
   MiMi<-read.table(MiMiName)
+  klaszter<-MiMi[,1] #erre figyelni !!!!!!!!!!!!!!! mert amúfy a cluból kéne jöjjön
+  # MiMi[c(which(klaszter==1)),5]
+  wow<-MiMi[,2]*mintf
   start<-1
   #ABLAK<-c(0.02,0.004)
   ##idoskal<-2 #itt alapból for ciklus van.. de hát...
@@ -47,7 +51,7 @@ ClusterAverage<-function(FirstSpikeOnly="no",state.wanted=3){
   #dirname<-paste(fajlnev,'_',start,'_','sec_est',sep='')
   setwd(mappa)
   #setwd(dirname)
-  dirname1<-paste(ablak,'sec',sep='')  
+  dirname1<-paste(ablak,'sec_state',state.wanted,sep='')  
   ##dir.create(dirname1) #csinálunk egy mappát!!!
   dir.create(dirname1,showWarnings = FALSE) #csinálunk egy mappát!!! 
   setwd(dirname1) 
@@ -60,9 +64,9 @@ ClusterAverage<-function(FirstSpikeOnly="no",state.wanted=3){
   
   for(l in tol:ig){   # szétválasztjuk az ltp előtti és utáni klasztereket
     
-    if (ch<33) state.l<-MiMi[l,5]
+    state.l<-MiMi[l,5]
   
-    if(ch<33 && state.l!=state.wanted && state.wanted!=3) next
+    if(state.l!=state.wanted && state.wanted!=3) next
     if(klaszter[l]==k ){ 
       
       
@@ -203,3 +207,6 @@ ClusterAverage<-function(FirstSpikeOnly="no",state.wanted=3){
   return(list(ATLAG=ATLAG,DATLAG=DATLAG,db=db,isi=isi))
 }
 
+
+#valami<-ClusterAverage("no",1)
+#image(t(valami$DATLAG[34:65,150:250]),col=rainbow(100))
