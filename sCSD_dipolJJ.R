@@ -28,9 +28,8 @@ library(class)
 ##library(fields)  ##NOTE: I don't have this package installed on Desktop. Do I need it???
 ##parent<-"~/Documents/Desktop/KFKI/Thalamus/sil20_erdekes"  ## On Desktop
 
-start<-1
 
-dirName<-paste("FS",FirstSpikeOnly,"_UpD",state.wanted,"_",start,"_","sec_est",sep='')
+dirName<-paste("FS",FirstSpikeOnly,"_SorV",whichUpDown,"_UpD",state.wanted,"_",start,"_","sec_est",sep='')
 
 mappa<-paste(mentes,'/',dirName,sep='')  ## Folder name used in tuskerajz.R 
 dir.create(mappa)

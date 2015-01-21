@@ -1,7 +1,7 @@
 #beolvassi paraméterek
 
 #Hol van az adat?
-fajlnev<-'p2d6.6.dat'
+fajlnev<-'p3d6.6.dat'
 #fajlnev<-'p3d6.6.dat'
 #fajlnev2<-'p3d6.6whisker'  ##used when using Acsadi's own .clu and .res files
 
@@ -12,12 +12,15 @@ WhereamI<-'kfki' #'otthon' #kfki
 
 # Up_down stat, first spike
 FirstSpikeOnly<-"no" #"yes" #no
-state.wanted<-3 #"Up"=1, "Down"=0, "Together"=3
+state.wanted<-1 #"Up"=1, "Down"=0, "Together"=3
 
 #Do you want to calculate the coherence
 CalcCoh<-"No" # "yes" #"No"
 #Do you want to run the clustering on a specific data?
 DoClustering<-"No" #Yes"#'Yes' #No
+# Uo and down state seperation based on the sensorymothor -4 or visual cortex - 5
+whichUpDown<-5
+
 
 #Are the distances known: 0 no, 1 -yes
 later<-1
