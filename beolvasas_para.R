@@ -23,7 +23,7 @@ whichUpDown<-5
 
 
 #Are the distances known: 0 no, 1 -yes
-later<-1
+later<-0
 #Name of Simulation
 NameofSimulation<-paste(fajlnev,"_ver1",sep="")
 

@@ -452,7 +452,7 @@ write.table(DistancesMatrix,distName,col.names=FALSE,row.names=FALSE)
 ##lines(S3,col='BLUE')
 if (later==1){
   distName<-paste(mentes,"/DistMethch",ch,"_k",k,sep="")
-  DistancesMatrix<-read.table(distname)
+  DistancesMatrix<-read.table(distName)
   DistCompDirac<-DistancesMatrix[,1]
   DistCompHej<-DistancesMatrix[,2]
   DistCompDirac3<-DistancesMatrix[,3]
