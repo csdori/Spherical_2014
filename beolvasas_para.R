@@ -7,7 +7,7 @@ fajlnev<-'p2d6.6.dat'
 
 #whics machine do I use:
 #otthon
-WhereamI<-'kfki' 'otthon' #kfki
+WhereamI<-'kfki' #'otthon' #kfki
 
 
 # Up_down stat, first spike
@@ -15,10 +15,12 @@ FirstSpikeOnly<-"no" #"yes" #no
 state.wanted<-3 #"Up"=1, "Down"=0, "Together"=3
 
 #Do you want to calculate the coherence
-CalcCoh<-"yes" # "yes" #"No"
+CalcCoh<-"No" # "yes" #"No"
 #Do you want to run the clustering on a specific data?
-DoClustering<-"yes" #Yes"#'Yes' #No
+DoClustering<-"No" #Yes"#'Yes' #No
 
+#Are the distances known: 0 no, 1 -yes
+later<-1
 #Name of Simulation
 NameofSimulation<-paste(fajlnev,"_ver1",sep="")
 

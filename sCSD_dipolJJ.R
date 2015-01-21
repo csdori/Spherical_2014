@@ -282,7 +282,7 @@ somawidth<-5
 
 
 
-later<-0
+
 if(later==0){
 Distances<-numeric()  
 S<-numeric()
@@ -432,6 +432,17 @@ DistCompDirac4<-c(DistCompDirac4,Distances[tav4])
 DistCompHej4<-c(DistCompHej4,Distances[tav4hej])
 MaxPots<- c(MaxPots,abs(minPot))
 
+if(is.na(tav)==FALSE)legen<-legendre(Distances[tav],DATLAG)
+if(is.na(tavhej)==FALSE) legenhej<-legendre(Distances[tavhej],DATLAG)
+if(is.na(tav3)==FALSE) legen3<-legendre(Distances[tav3],DATLAG)
+if(is.na(tav4)==FALSE) legen4<-legendre(Distances[tav4],DATLAG)
+
+DistancesMatrix<-matrix(c(DistCompDirac,DistCompHej,DistCompDirac3,DistCompHej3,DistCompDirac4,DistCompHej4,MaxPots),ncol=7)
+
+distName<-paste(mentes,"/DistMethch",ch,"_k",k,sep="")
+write.table(DistancesMatrix,distName,col.names=FALSE,row.names=FALSE)
+
+
 }#later
 ###################################################x
 #összefoglalóábra########################x
@@ -440,13 +451,19 @@ MaxPots<- c(MaxPots,abs(minPot))
 ##plot(S,t='l',main=tav)
 ##lines(S2,col='RED')
 ##lines(S3,col='BLUE')
+if (later==1){
+  distName<-paste(mentes,"/DistMethch",ch,"_k",k,sep="")
+  DistancesMatrix<-read.table(distname)
+  DistCompDirac<-DistancesMatrix[,1]
+  DistCompHej<-DistancesMatrix[,2]
+  DistCompDirac3<-DistancesMatrix[,3]
+  DistCompHej3<-DistancesMatrix[,4]
+  DistCompDirac4<-DistancesMatrix[,5]
+  DistCompHej4<-DistancesMatrix[,6]
+  MaxPots<-DistancesMatrix[,7]
+}
 
 
-##legen<-legendre(tav,DATLAG)
-if(is.na(tav)==FALSE)legen<-legendre(Distances[tav],DATLAG)
-if(is.na(tavhej)==FALSE) legenhej<-legendre(Distances[tavhej],DATLAG)
-if(is.na(tav3)==FALSE) legen3<-legendre(Distances[tav3],DATLAG)
-if(is.na(tav4)==FALSE) legen4<-legendre(Distances[tav4],DATLAG)
 
 dipolcsat<-legen$dipolcsat
 dipolcsathej<-legenhej$dipolcsat
@@ -679,9 +696,7 @@ dev.off()
 
 write.table(CellNames,"CellNames",col.names=FALSE,row.names=FALSE)
 
-DistancesMatrix<-matrix(c(DistCompDirac,DistCompHej,DistCompDirac3,DistCompHej3,DistCompDirac4,DistCompHej4,MaxPots),ncol=7)
 
-write.table(DistancesMatrix,"Distances6methods",col.names=FALSE,row.names=FALSE)
 
 
 

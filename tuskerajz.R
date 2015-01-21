@@ -64,7 +64,7 @@ ClusterAverage<-function(FirstSpikeOnly="no",state.wanted=3){
   
   for(l in tol:ig){   # szétválasztjuk az ltp előtti és utáni klasztereket
     
-    state.l<-MiMi[l,5]
+    state.l<-MiMi[l,whichUpDown]
   
     if(state.l!=state.wanted && state.wanted!=3) next
     if(klaszter[l]==k ){ 
