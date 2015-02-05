@@ -7,7 +7,7 @@ fajlnev<-'p3d6.6.dat'
 
 #whics machine do I use:
 #otthon
-WhereamI<-'kfki' #'otthon' #kfki
+WhereamI<-'otthon' #'otthon' #kfki
 
 
 # Up_down stat, first spike
@@ -19,13 +19,13 @@ CalcCoh<-"No" # "yes" #"No"
 #Do you want to run the clustering on a specific data?
 DoClustering<-"No" #Yes"#'Yes' #No
 # Uo and down state seperation based on the sensorymothor -4 or visual cortex - 5
-whichUpDown<-5
+whichUpDown<-4
 
 
 #Are the distances known: 0 no, 1 -yes
 later<-0
 #Name of Simulation
-NameofSimulation<-paste(fajlnev,"_ver1",sep="")
+NameofSimulation<-paste(fajlnev,"_ver_hosszuspike",sep="")
 
 
 if (WhereamI=='otthon'){
@@ -46,7 +46,7 @@ if (WhereamI=='kfki'){
 if (WhereamI=='Jozsikfki'){
   parent<-"/home/jalics/sil20_erdekes"
   forras1<-"/home/jalics/sCSD_git" 
-  mentes<-paste("/home/jalics/ACSADI_elem_09",NameofSimulation,sep="")
+  mentes<-paste("/home/jalics/ACSADI_elem_hosszuspike",NameofSimulation,sep="")
   setwd("/home/jalics/sCSD_git")  ## on tauri: Working directory for loading R files
 } 
 
@@ -91,7 +91,7 @@ tavg<-20
 #utan<-20
 utan<-13
 #elott<-9
-elott<-6
+elott<-16 #6
 hossz<-utan+1+elott
 
 #honnan olvassuk be

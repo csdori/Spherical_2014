@@ -71,5 +71,6 @@ ScrollingPlot(adat[whichCh,],adat[whichCh,],adat.filt.mua[whichCh,])
 ScrollingPlot(adat[whichCh,timewindow],adat.filt.slow[whichCh,timewindow],adat.filt.slow[whichCh,timewindow]*1)
 ScrollingPlot(adat[whichCh,],adat.filt.slow[whichCh,],10*abs(adat.filt.mua[whichCh,]))
 ScrollingPlot(adat[whichCh,],adat.filt.mua[whichCh,]*10,adat.gamma.rms[whichCh,]*30)
+ScrollingPlot(adat[whichCh,],adat.filt.mua[whichCh,]*10,adat.mua.rms[whichCh,]*30)
 
 # 

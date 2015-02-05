@@ -26,7 +26,7 @@ SpikeSorting<-function(fajlnev){
 library("signal")
 library("clv")
 ## open the file for reading in binary mode
-fid<-file(fajlnev,"rb")
+fid<-file(paste(parent,"/",fajlnev,sep=""),"rb")
 #
 #fontsize for figures
 bm<-18 #betűméret az ábrákon
